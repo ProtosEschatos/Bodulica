@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="hr" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bodulica Admin</title>
+<meta name="robots" content="noindex,nofollow">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Sora:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--b9:#060e1c;--b8:#0c1a30;--b7:#132340;--b6:#1a3358;--b5:#2563EB;--b4:#60a5fa;--b3:#93c5fd;--b2:#bfdbfe;--b1:#dbeafe;--go:#c9a84c;--te:#d97756;--ol:#6b8f5b;--t1:#eaeff5;--t2:#8d9db2;--tm:#5a6d85;--fd:'Playfair Display',Georgia,serif;--fb:'Sora',system-ui,sans-serif;--radius:8px;--green:#22c55e;--red:#ef4444;--orange:#f59e0b}
+body{font-family:var(--fb);background:var(--b9);color:var(--t1);min-height:100vh;font-size:14px;line-height:1.5}
+a{color:var(--b4);text-decoration:none}
+button{font-family:var(--fb);cursor:pointer;border:none;border-radius:var(--radius);transition:all .2s}
+input,select,textarea{font-family:var(--fb);background:var(--b8);border:1px solid var(--b6);color:var(--t1);padding:10px 14px;border-radius:var(--radius);width:100%;font-size:13px;outline:none;transition:border .2s}
+input:focus,select:focus,textarea:focus{border-color:var(--b5)}
+textarea{min-height:70px;resize:vertical}
+label{display:block;font-size:11px;font-weight:600;color:var(--t2);margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em}
+::placeholder{color:var(--tm);opacity:.5}
+
+/* Header Nav */
+.top-nav{position:fixed;top:0;left:0;right:0;z-index:300;padding:.7rem 3vw;background:rgba(6,14,28,.95);backdrop-filter:blur(20px);border-bottom:1px solid rgba(37,99,235,.1);display:flex;align-items:center;justify-content:space-between}
+.top-nav .logo{font-family:var(--fd);font-size:1.2rem;color:var(--b2);font-weight:500}
+.top-nav .nav-links{display:flex;gap:1.5rem;align-items:center}
+.top-nav .nav-links a{font-size:.55rem;font-weight:400;color:var(--t2);letter-spacing:.14em;text-transform:uppercase;transition:color .3s}
+.top-nav .nav-links a:hover{color:var(--b4)}
+.top-nav .nav-links a.active{color:var(--b4)}
+
+/* Main Content */
+.main-content{margin-top:60px;padding:2rem}
+.container{max-width:1200px;margin:0 auto}
+
+/* Login */
+.login-wrap{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px}
+.login-box{width:100%;max-width:400px;background:var(--b8);border:1px solid var(--b6);border-radius:12px;padding:40px 32px}
+.login-box h1{font-family:var(--fd);font-size:24px;font-weight:600;text-align:center;margin-bottom:4px;color:var(--b1)}
+.login-box p{text-align:center;color:var(--t2);font-size:12px;margin-bottom:28px}
+.field{margin-bottom:16px}
+.btn-login{width:100%;padding:12px;background:var(--b5);color:#fff;font-weight:600;font-size:14px;border-radius:var(--radius)}
+.btn-login:hover{background:var(--b4)}
+.error{color:var(--te);font-size:12px;margin-top:8px;text-align:center;min-height:18px}
+
+/* Dashboard */
+.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:12px}
+.page-header h2{font-family:var(--fd);font-size:24px;font-weight:600;color:var(--b1)}
+.btn{padding:10px 18px;font-size:13px;font-weight:600;border-radius:var(--radius);display:inline-flex;align-items:center;gap:6px;transition:all .2s;cursor:pointer}
+.btn-primary{background:var(--b5);color:#fff}.btn-primary:hover{background:var(--b4)}
+.btn-secondary{background:var(--b7);color:var(--t1);border:1px solid var(--b6)}.btn-secondary:hover{border-color:var(--b5)}
+.btn-danger{background:rgba(217,119,86,.1);color:var(--te);border:1px solid rgba(217,119,86,.2)}.btn-danger:hover{background:rgba(217,119,86,.2)}
+.btn-sm{padding:6px 12px;font-size:11px}
+
+/* Stats */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:28px}
+.stat-card{background:var(--b8);border:1px solid var(--b6);border-radius:var(--radius);padding:24px;transition:all .3s}
+.stat-card:hover{border-color:var(--b5);transform:translateY(-2px)}
+.stat-label{font-size:11px;font-weight:600;color:var(--t2);text-transform:uppercase;letter-spacing:.05em}
+.stat-value{font-family:var(--fd);font-size:32px;font-weight:700;margin-top:8px;color:var(--b1)}
+.badge{display:inline-block;padding:4px 10px;border-radius:12px;font-size:10px;font-weight:600;text-transform:uppercase}
+.badge-green{background:rgba(34,197,94,.1);color:var(--ol)}
+.badge-orange{background:rgba(245,158,11,.1);color:var(--go)}
+.badge-red{background:rgba(217,119,86,.1);color:var(--te)}
+.badge-blue{background:rgba(37,99,235,.15);color:var(--b4)}
+
+/* Table */
+.table-wrap{background:var(--b8);border:1px solid var(--b6);border-radius:var(--radius);overflow:hidden;margin-bottom:24px}
+.table-top{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--b6);gap:12px;flex-wrap:wrap}
+.table-top h3{font-family:var(--fd);font-size:16px;color:var(--b1)}
+.table-top input{max-width:260px;background:var(--b9)}
+table{width:100%;border-collapse:collapse;min-width:600px}
+thead{background:var(--b7)}
+th{text-align:left;padding:12px 20px;font-size:11px;font-weight:600;color:var(--t2);text-transform:uppercase;letter-spacing:.05em;white-space:nowrap}
+td{padding:14px 20px;border-top:1px solid var(--b6);font-size:13px;vertical-align:middle;color:var(--t1)}
+tr:hover td{background:rgba(37,99,235,.03)}
+.thumb{width:48px;height:48px;border-radius:6px;object-fit:cover;background:var(--b7)}
+.action-btns{display:flex;gap:8px}
+
+/* Modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(6,14,28,.85);backdrop-filter:blur(8px);z-index:400;display:none;align-items:center;justify-content:center;padding:40px 20px;overflow-y:auto}
+.modal-overlay.open{display:flex}
+.modal{background:var(--b8);border:1px solid var(--b6);border-radius:12px;width:100%;max-width:600px;padding:28px;max-height:90vh;overflow-y:auto}
+.modal h3{font-family:var(--fd);font-size:20px;font-weight:600;margin-bottom:20px;color:var(--b1);display:flex;align-items:center;justify-content:space-between}
+.close-btn{background:none;color:var(--t2);font-size:20px;padding:4px;cursor:pointer;border:none}
+.close-btn:hover{color:var(--b1)}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.form-grid.full{grid-template-columns:1fr}
+.form-actions{display:flex;gap:12px;justify-content:flex-end;margin-top:24px;padding-top:20px;border-top:1px solid var(--b6)}
+
+/* Responsive */
+@media(max-width:768px){
+  .form-grid{grid-template-columns:1fr}
+  .top-nav .nav-links a:not(.btn){display:none}
+  .main-content{padding:1rem}
+  .stats{grid-template-columns:repeat(2,1fr)}
+}
+
+/* Toast */
+.toast{position:fixed;bottom:20px;right:20px;background:var(--ol);color:#fff;padding:14px 24px;border-radius:var(--radius);font-weight:500;font-size:13px;z-index:500;animation:slideUp .3s;box-shadow:0 10px 30px rgba(0,0,0,.3)}
+@keyframes slideUp{from{transform:translateY(100px);opacity:0}to{transform:translateY(0);opacity:1}}
+.loading{opacity:.5;pointer-events:none}
+</style>
+</head>
+<body>
+
+<!-- Navigation -->
+<nav class="top-nav" id="topNav" style="display:none">
+  <a href="index.html" class="logo">Bodulica</a>
+  <div class="nav-links">
+    <a href="index.html">Početna</a>
+    <a href="shop.html">Shop</a>
+    <a href="admin.html" class="active">Admin</a>
+    <button class="btn btn-secondary btn-sm" onclick="logout()">Odjava</button>
+  </div>
+</nav>
+
+<!-- Login Screen -->
+<div id="loginScreen" class="login-wrap">
+  <div class="login-box">
+    <h1>Bodulica Admin</h1>
+    <p>Prijavite se za upravljanje proizvodima</p>
+    <form id="loginForm">
+      <div class="field">
+        <label>Korisničko ime</label>
+        <input type="text" id="username" placeholder="admin" required>
+      </div>
+      <div class="field">
+        <label>Lozinka</label>
+        <input type="password" id="password" placeholder="••••••" required>
+      </div>
+      <div class="error" id="loginError"></div>
+      <button type="submit" class="btn-login">Prijava</button>
+    </form>
+  </div>
+</div>
+
+<!-- Dashboard -->
+<div id="dashboard" class="main-content" style="display:none">
+  <div class="container">
+    <div class="page-header">
+      <h2>Upravljanje Proizvodima</h2>
+      <button class="btn btn-primary" onclick="openModal()">+ Novi Proizvod</button>
+    </div>
+
+    <div class="stats">
+      <div class="stat-card">
+        <div class="stat-label">Ukupno Proizvoda</div>
+        <div class="stat-value" id="totalProducts">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Kategorije</div>
+        <div class="stat-value" id="totalCategories">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Akcije</div>
+        <div class="stat-value"><span class="badge badge-orange" id="saleCount">0</span></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Status</div>
+        <div class="stat-value"><span class="badge badge-green" id="apiStatus">Online</span></div>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <div class="table-top">
+        <h3>Svi Proizvodi</h3>
+        <input type="text" id="searchInput" placeholder="Pretraži proizvode..." onkeyup="searchProducts()">
+      </div>
+      <div style="overflow-x:auto">
+        <table>
+          <thead>
+            <tr>
+              <th>Slika</th>
+              <th>Naziv</th>
+              <th>Kategorija</th>
+              <th>Marka</th>
+              <th>Cijena</th>
+              <th>Akcije</th>
+            </tr>
+          </thead>
+          <tbody id="productTable">
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Product Modal -->
+<div id="productModal" class="modal-overlay" onclick="closeModalOnOverlay(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <h3>
+      <span id="modalTitle">Novi Proizvod</span>
+      <button class="close-btn" onclick="closeModal()">×</button>
+    </h3>
+    <form id="productForm">
+      <input type="hidden" id="productId">
+      <div class="form-grid full">
+        <div class="field">
+          <label>Naziv Proizvoda *</label>
+          <input type="text" id="pName" required>
+        </div>
+      </div>
+      <div class="form-grid">
+        <div class="field">
+          <label>Kategorija *</label>
+          <select id="pCategory" required>
+            <option value="delicije">Delicije</option>
+            <option value="kozmetika">Kozmetika</option>
+            <option value="hidrolati">Hidrolati</option>
+            <option value="djeca">Djeca & Pokloni</option>
+            <option value="rucni-rad">Ručni rad</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Marka *</label>
+          <input type="text" id="pBrand" required>
+        </div>
+      </div>
+      <div class="form-grid">
+        <div class="field">
+          <label>Cijena (EUR) *</label>
+          <input type="number" id="pPrice" step="0.01" min="0" required>
+        </div>
+        <div class="field">
+          <label>Badge</label>
+          <select id="pBadge">
+            <option value="">Nijedan</option>
+            <option value="new">Novo</option>
+            <option value="hot">Popularno</option>
+            <option value="award">Nagrada</option>
+            <option value="eco">Eko</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-grid full">
+        <div class="field">
+          <label>URL Slike</label>
+          <input type="url" id="pImage" placeholder="https://...">
+        </div>
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn btn-secondary" onclick="closeModal()">Odustani</button>
+        <button type="submit" class="btn btn-primary">Spremi</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+// Supabase config
+const SUPABASE_URL = 'https://mbputwgppweoeujiszgv.supabase.co';
+const API_URL = SUPABASE_URL + '/functions/v1/bodulica-api';
+
+// Auth
+const ADMIN_USER = 'admin';
+const ADMIN_PASS = 'bodulica2026';
+
+let products = [];
+let editingId = null;
+
+// Fetch products from Supabase
+async function fetchProducts() {
+  try {
+    document.body.classList.add('loading');
+    const response = await fetch(API_URL + '/products');
+    if(response.ok) {
+      products = await response.json();
+      document.getElementById('apiStatus').textContent = 'Online';
+      document.getElementById('apiStatus').className = 'badge badge-green';
+    } else {
+      throw new Error('API Error');
+    }
+  } catch(e) {
+    console.error('Error fetching products:', e);
+    document.getElementById('apiStatus').textContent = 'Offline';
+    document.getElementById('apiStatus').className = 'badge badge-red';
+    // Fallback to localStorage
+    products = JSON.parse(localStorage.getItem('bodulicaProducts')) || [];
+  } finally {
+    document.body.classList.remove('loading');
+    loadProducts();
+    updateStats();
+  }
+}
+
+// Login
+document.getElementById('loginForm').addEventListener('submit', function(e){
+  e.preventDefault();
+  const u = document.getElementById('username').value;
+  const p = document.getElementById('password').value;
+  
+  if(u === ADMIN_USER && p === ADMIN_PASS){
+    sessionStorage.setItem('bodulicaAdmin', 'loggedIn');
+    showDashboard();
+    fetchProducts();
+  } else {
+    document.getElementById('loginError').textContent = 'Neispravni podaci za prijavu';
+  }
+});
+
+function showDashboard(){
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('dashboard').style.display = 'block';
+  document.getElementById('topNav').style.display = 'flex';
+}
+
+function logout(){
+  sessionStorage.removeItem('bodulicaAdmin');
+  location.reload();
+}
+
+// Check auth on load
+if(sessionStorage.getItem('bodulicaAdmin') === 'loggedIn'){
+  showDashboard();
+  fetchProducts();
+}
+
+// Products
+function loadProducts(){
+  const tbody = document.getElementById('productTable');
+  tbody.innerHTML = products.map(p => `
+    <tr>
+      <td><img src="${p.image || 'https://via.placeholder.com/48'}" class="thumb" alt="${p.name}"></td>
+      <td><strong>${p.name}</strong></td>
+      <td><span class="badge badge-blue">${p.category}</span></td>
+      <td>${p.brand}</td>
+      <td>${p.price.toFixed(2)} EUR</td>
+      <td>
+        <div class="action-btns">
+          <button class="btn btn-secondary btn-sm" onclick="editProduct('${p.id}')">Uredi</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteProduct('${p.id}')">Obriši</button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function updateStats(){
+  document.getElementById('totalProducts').textContent = products.length;
+  const cats = new Set(products.map(p => p.category));
+  document.getElementById('totalCategories').textContent = cats.size;
+  document.getElementById('saleCount').textContent = products.filter(p => p.badge).length;
+}
+
+function searchProducts(){
+  const term = document.getElementById('searchInput').value.toLowerCase();
+  const rows = document.querySelectorAll('#productTable tr');
+  rows.forEach(row => {
+    const text = row.textContent.toLowerCase();
+    row.style.display = text.includes(term) ? '' : 'none';
+  });
+}
+
+// Modal
+function openModal(){
+  editingId = null;
+  document.getElementById('modalTitle').textContent = 'Novi Proizvod';
+  document.getElementById('productForm').reset();
+  document.getElementById('productModal').classList.add('open');
+}
+
+function editProduct(id){
+  const p = products.find(x => x.id === id);
+  if(!p) return;
+  editingId = id;
+  document.getElementById('modalTitle').textContent = 'Uredi Proizvod';
+  document.getElementById('pName').value = p.name;
+  document.getElementById('pCategory').value = p.category;
+  document.getElementById('pBrand').value = p.brand;
+  document.getElementById('pPrice').value = p.price;
+  document.getElementById('pBadge').value = p.badge || '';
+  document.getElementById('pImage').value = p.image || '';
+  document.getElementById('productModal').classList.add('open');
+}
+
+function closeModal(){
+  document.getElementById('productModal').classList.remove('open');
+}
+
+function closeModalOnOverlay(e){
+  if(e.target === document.getElementById('productModal')){
+    closeModal();
+  }
+}
+
+// Save product - now with Supabase
+document.getElementById('productForm').addEventListener('submit', async function(e){
+  e.preventDefault();
+  
+  const product = {
+    id: editingId || 'p' + Date.now(),
+    name: document.getElementById('pName').value,
+    category: document.getElementById('pCategory').value,
+    brand: document.getElementById('pBrand').value,
+    price: parseFloat(document.getElementById('pPrice').value),
+    badge: document.getElementById('pBadge').value,
+    image: document.getElementById('pImage').value || 'https://via.placeholder.com/400'
+  };
+  
+  try {
+    document.body.classList.add('loading');
+    const response = await fetch(API_URL + '/products', {
+      method: editingId ? 'PUT' : 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(product)
+    });
+    
+    if(response.ok) {
+      await fetchProducts();
+      closeModal();
+      showToast('Proizvod spremljen!');
+    } else {
+      throw new Error('Save failed');
+    }
+  } catch(err) {
+    // Fallback to localStorage
+    if(editingId){
+      const idx = products.findIndex(p => p.id === editingId);
+      products[idx] = product;
+    } else {
+      products.push(product);
+    }
+    localStorage.setItem('bodulicaProducts', JSON.stringify(products));
+    loadProducts();
+    updateStats();
+    closeModal();
+    showToast('Proizvod spremljen (offline mode)');
+  } finally {
+    document.body.classList.remove('loading');
+  }
+});
+
+async function deleteProduct(id){
+  if(!confirm('Jeste li sigurni da želite obrisati ovaj proizvod?')) return;
+  
+  try {
+    document.body.classList.add('loading');
+    const response = await fetch(API_URL + '/products?id=' + id, {method: 'DELETE'});
+    
+    if(response.ok) {
+      await fetchProducts();
+      showToast('Proizvod obrisan');
+    } else {
+      throw new Error('Delete failed');
+    }
+  } catch(err) {
+    products = products.filter(p => p.id !== id);
+    localStorage.setItem('bodulicaProducts', JSON.stringify(products));
+    loadProducts();
+    updateStats();
+    showToast('Proizvod obrisan (offline mode)');
+  } finally {
+    document.body.classList.remove('loading');
+  }
+}
+
+function showToast(msg){
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 3000);
+}
+</script>
+
+</body>
+</html>

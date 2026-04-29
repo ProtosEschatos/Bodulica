@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Bodulica — Svi Proizvodi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Sora:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--b9:#060e1c;--b8:#0c1a30;--b7:#132340;--b6:#1a3358;--b5:#2563EB;--b4:#60a5fa;--b3:#93c5fd;--b2:#bfdbfe;--b1:#dbeafe;--go:#c9a84c;--te:#d97756;--ol:#6b8f5b;--t1:#eaeff5;--t2:#8d9db2;--tm:#5a6d85;--fd:'Playfair Display',Georgia,serif;--fb:'Sora',system-ui,sans-serif;--e:cubic-bezier(.16,1,.3,1)}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{font-size:16px;scroll-behavior:smooth;-webkit-font-smoothing:antialiased}
+body{font-family:var(--fb);background:var(--b9);color:var(--t1);overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+body::before{content:'';position:fixed;inset:0;z-index:9999;pointer-events:none;opacity:.018;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+
+/* HEADER */
+.hd{position:fixed;top:0;left:0;right:0;z-index:200;padding:.7rem 3vw;background:rgba(6,14,28,.88);backdrop-filter:blur(28px);-webkit-backdrop-filter:blur(28px);border-bottom:1px solid rgba(37,99,235,.05)}
+.hd-in{display:flex;align-items:center;justify-content:space-between;max-width:1440px;margin:0 auto}
+.lg{font-family:var(--fd);font-size:1.3rem;color:var(--b2);font-weight:500}
+.hn{display:flex;gap:1.6rem;align-items:center}
+.hn a{font-size:.58rem;font-weight:400;color:var(--t2);letter-spacing:.14em;text-transform:uppercase;transition:color .3s;position:relative}
+.hn a:hover{color:var(--b3)}
+.hn a::after{content:'';position:absolute;bottom:-2px;left:0;width:0;height:1px;background:var(--b4);transition:width .4s var(--e)}
+.hn a:hover::after{width:100%}
+.hn a.active{color:var(--b4)}
+.cb{position:relative;background:none;border:1px solid var(--b6);color:var(--b3);padding:.4rem 1rem;font-family:var(--fb);font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:all .3s}
+.cb:hover{background:var(--b5);border-color:var(--b5);color:#fff}
+.cc{position:absolute;top:-5px;right:-5px;min-width:16px;height:16px;background:var(--te);color:#fff;border-radius:50%;font-size:.5rem;display:flex;align-items:center;justify-content:center;font-weight:700;padding:0 3px}
+
+/* PAGE TITLE */
+.page-title{padding:7rem 3vw 2rem;max-width:1440px;margin:0 auto;text-align:center}
+.page-title h1{font-family:var(--fd);font-size:clamp(2rem,5vw,3rem);color:var(--b1);margin-bottom:.5rem}
+.page-title p{font-size:.85rem;color:var(--t2);max-width:500px;margin:0 auto}
+
+/* FILTERS */
+.fl{padding:1rem 3vw;max-width:1440px;margin:0 auto;display:flex;gap:.4rem;flex-wrap:wrap;justify-content:center}
+.fb{padding:.35rem .8rem;border:1px solid var(--b7);background:transparent;color:var(--t2);font-family:var(--fb);font-size:.55rem;letter-spacing:.06em;cursor:pointer;transition:all .3s;text-transform:uppercase}
+.fb.ac,.fb:hover{background:var(--b5);border-color:var(--b5);color:#fff}
+
+/* GRID */
+.pg{max-width:1440px;margin:0 auto;padding:1rem 3vw 4rem;display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:2px;background:rgba(37,99,235,.02)}
+.pc{background:var(--b9);cursor:pointer;transition:all .5s var(--e);position:relative;overflow:hidden}
+.pc:hover{background:rgba(12,26,48,.8);transform:translateY(-2px);box-shadow:0 12px 40px rgba(0,0,0,.3)}
+.pw{position:relative;overflow:hidden}
+.pi{width:100%;aspect-ratio:1;object-fit:contain;padding:1.5rem;background:linear-gradient(160deg,rgba(12,26,48,.5),var(--b9));transition:transform .7s var(--e)}
+.pc:hover .pi{transform:scale(1.05)}
+.pb{padding:1.2rem 1.5rem 1.5rem}
+.pt{font-size:.45rem;font-weight:500;letter-spacing:.2em;color:var(--b4);margin-bottom:.25rem;text-transform:uppercase}
+.pn{font-family:var(--fd);font-size:1.1rem;color:var(--b1);margin-bottom:.1rem;line-height:1.2}
+.pr{font-size:.65rem;color:var(--tm);margin-bottom:.7rem}
+.pf{display:flex;align-items:center;justify-content:space-between}
+.pp{font-family:var(--fd);font-size:1.4rem;color:var(--b3)}
+.pp .eu{font-family:var(--fb);font-size:.5rem;color:var(--tm);margin-left:.08rem}
+.bd{display:inline-flex;padding:.12rem .4rem;border-radius:100px;font-size:.4rem;font-weight:500;letter-spacing:.03em;text-transform:uppercase}
+.bg-award{background:rgba(201,168,76,.15);color:var(--go)}
+.bg-new{background:rgba(37,99,235,.15);color:var(--b4)}
+.bg-hot{background:rgba(217,119,86,.15);color:var(--te)}
+.bg-eco{background:rgba(107,143,91,.15);color:var(--ol)}
+.qb{position:absolute;bottom:1.5rem;right:1.5rem;width:34px;height:34px;border-radius:50%;background:var(--b5);border:none;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:0;transform:translateY(6px);transition:all .3s var(--e);font-size:.95rem}
+.pc:hover .qb{opacity:1;transform:translateY(0)}
+.qb:hover{background:var(--b4);transform:scale(1.12)!important}
+
+/* FOOTER */
+.ft{padding:3rem 3vw 1.5rem;border-top:1px solid rgba(37,99,235,.04);text-align:center}
+.ftb{font-family:var(--fd);font-size:1.1rem;color:var(--b3);display:block;margin-bottom:.25rem}
+.ftq{font-family:var(--fd);font-style:italic;font-size:.8rem;color:var(--te);margin-bottom:.5rem}
+.ftc{font-size:.55rem;color:var(--tm)}
+
+/* RESPONSIVE */
+@media(max-width:768px){.hn a:not(.cb){display:none}.pg{grid-template-columns:1fr 1fr}.page-title{padding-top:6rem}}
+@media(max-width:480px){.pg{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<header class="hd">
+  <div class="hd-in">
+    <a href="index.html" class="lg">Bodulica</a>
+    <nav class="hn">
+      <a href="index.html">Početna</a>
+      <a href="shop.html" class="active">Shop</a>
+      <a href="admin.html">Admin</a>
+      <button class="cb" id="cartBtn">Košarica <span class="cc" id="cartCount">0</span></button>
+    </nav>
+  </div>
+</header>
+
+<div class="page-title">
+  <h1>Svi Proizvodi</h1>
+  <p>Ručno odabrani proizvodi iz naše butige u Betini na Murteru</p>
+</div>
+
+<div class="fl" id="filters">
+  <button class="fb ac" data-cat="all">Svi proizvodi</button>
+  <button class="fb" data-cat="delicije">Delicije</button>
+  <button class="fb" data-cat="kozmetika">Kozmetika</button>
+  <button class="fb" data-cat="hidrolati">Hidrolati</button>
+  <button class="fb" data-cat="djeca">Djeca & Pokloni</button>
+</div>
+
+<div class="pg" id="productGrid">
+  <!-- Products will be loaded here -->
+</div>
+
+<footer class="ft">
+  <span class="ftb">Bodulica</span>
+  <p class="ftq">"Ljepota je u jednostavnosti"</p>
+  <p class="ftc">© 2026 Bodulica · Betina, Murter · Sva prava pridržana</p>
+</footer>
+
+<script>
+// Supabase config
+const SUPABASE_URL = 'https://mbputwgppweoeujiszgv.supabase.co';
+const API_URL = `${SUPABASE_URL}/functions/v1/bodulica-api`;
+
+let products = [];
+let cart = JSON.parse(localStorage.getItem('bodulicaCart')) || [];
+
+// Fetch products from Supabase
+async function fetchProducts() {
+  try {
+    const response = await fetch(`${API_URL}/products`);
+    if(response.ok) {
+      products = await response.json();
+      renderProducts();
+    } else {
+      // Fallback to localStorage
+      products = JSON.parse(localStorage.getItem('bodulicaProducts')) || [];
+      renderProducts();
+    }
+  } catch(e) {
+    console.error('Error fetching products:', e);
+    products = JSON.parse(localStorage.getItem('bodulicaProducts')) || [];
+    renderProducts();
+  }
+}
+
+function updateCartCount(){
+  document.getElementById('cartCount').textContent = cart.reduce((a,b)=>a+b.qty,0);
+}
+
+function renderProducts(filter='all'){
+  const grid = document.getElementById('productGrid');
+  const filtered = filter==='all'?products:products.filter(p=>p.category===filter);
+  
+  if(filtered.length === 0) {
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:4rem;color:var(--t2)">Nema proizvoda</div>';
+    return;
+  }
+  
+  grid.innerHTML = filtered.map(p=>`
+    <div class="pc" data-cat="${p.category}" onclick="addToCart('${p.id}')">
+      <div class="pw">
+        <img class="pi" src="${p.image || 'https://via.placeholder.com/400'}" alt="${p.name}" loading="lazy">
+      </div>
+      <div class="pb">
+        <div class="pt">${p.category}</div>
+        <div class="pn">${p.name}</div>
+        <div class="pr">${p.brand}</div>
+        <div class="pf">
+          <span class="pp">${p.price.toFixed(2)}<span class="eur"> EUR</span></span>
+          ${p.badge?`<span class="bd bg-${p.badge}">${p.badge}</span>`:''}
+        </div>
+      </div>
+      <button class="qb">+</button>
+    </div>
+  `).join('');
+}
+
+function addToCart(id){
+  const item = cart.find(i=>i.id===id);
+  if(item) item.qty++;
+  else cart.push({id,qty:1});
+  localStorage.setItem('bodulicaCart', JSON.stringify(cart));
+  updateCartCount();
+  
+  // Visual feedback
+  const btn = document.querySelector('.cc');
+  btn.classList.add('bump');
+  setTimeout(()=>btn.classList.remove('bump'), 400);
+}
+
+// Filter buttons
+document.getElementById('filters').addEventListener('click', e=>{
+  if(e.target.classList.contains('fb')){
+    document.querySelectorAll('.fb').forEach(b=>b.classList.remove('ac'));
+    e.target.classList.add('ac');
+    renderProducts(e.target.dataset.cat);
+  }
+});
+
+// Cart button
+document.getElementById('cartBtn').addEventListener('click', ()=>{
+  if(cart.length===0) alert('Košarica je prazna');
+  else alert(`U košarici: ${cart.reduce((a,b)=>a+b.qty,0)} proizvoda`);
+});
+
+// Init
+updateCartCount();
+fetchProducts();
+</script>
+
+</body>
+</html>
