@@ -23,3 +23,5 @@ jobs:
           projectName: bodulica
           directory: Bodulica
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+          buildCommand: ""
+          nodeVersion: 18
