@@ -5,462 +5,452 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Bodulica Admin</title>
 <meta name="robots" content="noindex,nofollow">
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Sora:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-:root{--b9:#060e1c;--b8:#0c1a30;--b7:#132340;--b6:#1a3358;--b5:#2563EB;--b4:#60a5fa;--b3:#93c5fd;--b2:#bfdbfe;--b1:#dbeafe;--go:#c9a84c;--te:#d97756;--ol:#6b8f5b;--t1:#eaeff5;--t2:#8d9db2;--tm:#5a6d85;--fd:'Playfair Display',Georgia,serif;--fb:'Sora',system-ui,sans-serif;--radius:8px;--green:#22c55e;--red:#ef4444;--orange:#f59e0b}
-body{font-family:var(--fb);background:var(--b9);color:var(--t1);min-height:100vh;font-size:14px;line-height:1.5}
-a{color:var(--b4);text-decoration:none}
-button{font-family:var(--fb);cursor:pointer;border:none;border-radius:var(--radius);transition:all .2s}
-input,select,textarea{font-family:var(--fb);background:var(--b8);border:1px solid var(--b6);color:var(--t1);padding:10px 14px;border-radius:var(--radius);width:100%;font-size:13px;outline:none;transition:border .2s}
-input:focus,select:focus,textarea:focus{border-color:var(--b5)}
+:root{--font:'DM Sans',system-ui,sans-serif;--radius:8px;--accent:#5bb8f0;--accent2:#4da8e0;--green:#22c55e;--red:#ef4444;--orange:#f59e0b;--purple:#a855f7}
+[data-theme="dark"]{--bg:#0c1117;--bg2:#151b23;--bg3:#1c232d;--border:#2a3240;--text:#c8d6e5;--text2:#8899aa}
+[data-theme="light"]{--bg:#f0f2f5;--bg2:#ffffff;--bg3:#f7f8fa;--border:#e2e6ea;--text:#1a2332;--text2:#5a6a7a}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;font-size:14px;line-height:1.5;transition:background .3s,color .3s}
+a{color:var(--accent);text-decoration:none}
+button{font-family:var(--font);cursor:pointer;border:none;border-radius:var(--radius)}
+input,select,textarea{font-family:var(--font);background:var(--bg);border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:var(--radius);width:100%;font-size:13px;outline:none;transition:border .2s}
+input:focus,select:focus,textarea:focus{border-color:var(--accent)}
 textarea{min-height:70px;resize:vertical}
-label{display:block;font-size:11px;font-weight:600;color:var(--t2);margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em}
-::placeholder{color:var(--tm);opacity:.5}
-
-/* Header Nav */
-.top-nav{position:fixed;top:0;left:0;right:0;z-index:300;padding:.7rem 3vw;background:rgba(6,14,28,.95);backdrop-filter:blur(20px);border-bottom:1px solid rgba(37,99,235,.1);display:flex;align-items:center;justify-content:space-between}
-.top-nav .logo{font-family:var(--fd);font-size:1.2rem;color:var(--b2);font-weight:500}
-.top-nav .nav-links{display:flex;gap:1.5rem;align-items:center}
-.top-nav .nav-links a{font-size:.55rem;font-weight:400;color:var(--t2);letter-spacing:.14em;text-transform:uppercase;transition:color .3s}
-.top-nav .nav-links a:hover{color:var(--b4)}
-.top-nav .nav-links a.active{color:var(--b4)}
-
-/* Main Content */
-.main-content{margin-top:60px;padding:2rem}
-.container{max-width:1200px;margin:0 auto}
-
-/* Login */
+label{display:block;font-size:11px;font-weight:600;color:var(--text2);margin-bottom:4px;text-transform:uppercase;letter-spacing:.05em}
+::placeholder{color:var(--text2);opacity:.5}
 .login-wrap{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px}
-.login-box{width:100%;max-width:400px;background:var(--b8);border:1px solid var(--b6);border-radius:12px;padding:40px 32px}
-.login-box h1{font-family:var(--fd);font-size:24px;font-weight:600;text-align:center;margin-bottom:4px;color:var(--b1)}
-.login-box p{text-align:center;color:var(--t2);font-size:12px;margin-bottom:28px}
+.login-box{width:100%;max-width:380px;background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:40px 32px}
+.login-box h1{font-size:22px;font-weight:600;text-align:center;margin-bottom:4px}
+.login-box p{text-align:center;color:var(--text2);font-size:12px;margin-bottom:28px}
 .field{margin-bottom:16px}
-.btn-login{width:100%;padding:12px;background:var(--b5);color:#fff;font-weight:600;font-size:14px;border-radius:var(--radius)}
-.btn-login:hover{background:var(--b4)}
-.error{color:var(--te);font-size:12px;margin-top:8px;text-align:center;min-height:18px}
-
-/* Dashboard */
-.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:12px}
-.page-header h2{font-family:var(--fd);font-size:24px;font-weight:600;color:var(--b1)}
-.btn{padding:10px 18px;font-size:13px;font-weight:600;border-radius:var(--radius);display:inline-flex;align-items:center;gap:6px;transition:all .2s;cursor:pointer}
-.btn-primary{background:var(--b5);color:#fff}.btn-primary:hover{background:var(--b4)}
-.btn-secondary{background:var(--b7);color:var(--t1);border:1px solid var(--b6)}.btn-secondary:hover{border-color:var(--b5)}
-.btn-danger{background:rgba(217,119,86,.1);color:var(--te);border:1px solid rgba(217,119,86,.2)}.btn-danger:hover{background:rgba(217,119,86,.2)}
-.btn-sm{padding:6px 12px;font-size:11px}
-
-/* Stats */
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:28px}
-.stat-card{background:var(--b8);border:1px solid var(--b6);border-radius:var(--radius);padding:24px;transition:all .3s}
-.stat-card:hover{border-color:var(--b5);transform:translateY(-2px)}
-.stat-label{font-size:11px;font-weight:600;color:var(--t2);text-transform:uppercase;letter-spacing:.05em}
-.stat-value{font-family:var(--fd);font-size:32px;font-weight:700;margin-top:8px;color:var(--b1)}
-.badge{display:inline-block;padding:4px 10px;border-radius:12px;font-size:10px;font-weight:600;text-transform:uppercase}
-.badge-green{background:rgba(34,197,94,.1);color:var(--ol)}
-.badge-orange{background:rgba(245,158,11,.1);color:var(--go)}
-.badge-red{background:rgba(217,119,86,.1);color:var(--te)}
-.badge-blue{background:rgba(37,99,235,.15);color:var(--b4)}
-
-/* Table */
-.table-wrap{background:var(--b8);border:1px solid var(--b6);border-radius:var(--radius);overflow:hidden;margin-bottom:24px}
-.table-top{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--b6);gap:12px;flex-wrap:wrap}
-.table-top h3{font-family:var(--fd);font-size:16px;color:var(--b1)}
-.table-top input{max-width:260px;background:var(--b9)}
+.btn-login{width:100%;padding:10px;background:var(--accent);color:#fff;font-weight:600;font-size:14px;border-radius:var(--radius)}
+.btn-login:hover{background:var(--accent2)}
+.error{color:var(--red);font-size:12px;margin-top:8px;text-align:center;min-height:18px}
+.sidebar{width:220px;background:var(--bg2);border-right:1px solid var(--border);padding:20px 0;flex-shrink:0;position:fixed;height:100vh;overflow-y:auto;transition:background .3s}
+.logo{padding:0 20px 16px;font-size:18px;font-weight:700;color:var(--accent);border-bottom:1px solid var(--border);margin-bottom:12px}
+.logo span{font-weight:300;color:var(--text2);font-size:11px;display:block}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 20px;color:var(--text2);font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;border-left:3px solid transparent}
+.nav-item:hover{background:rgba(91,184,240,.05);color:var(--text)}
+.nav-item.active{background:rgba(91,184,240,.08);color:var(--accent);border-left-color:var(--accent)}
+.nav-sep{height:1px;background:var(--border);margin:8px 20px}
+.main{flex:1;margin-left:220px;padding:24px 32px;max-width:1200px}
+.theme-toggle{margin:8px 20px;padding:8px 12px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12px;color:var(--text2);transition:all .2s}
+.theme-toggle:hover{border-color:var(--accent);color:var(--text)}
+.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px}
+.page-header h2{font-size:22px;font-weight:600}
+.btn{padding:8px 16px;font-size:13px;font-weight:600;border-radius:var(--radius);display:inline-flex;align-items:center;gap:6px;transition:all .2s}
+.btn-primary{background:var(--accent);color:#fff}.btn-primary:hover{background:var(--accent2)}
+.btn-secondary{background:var(--bg3);color:var(--text);border:1px solid var(--border)}.btn-secondary:hover{border-color:var(--accent)}
+.btn-danger{background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.2)}.btn-danger:hover{background:rgba(239,68,68,.2)}
+.btn-sm{padding:5px 10px;font-size:11px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:24px}
+.stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:20px;transition:background .3s}
+.stat-label{font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase}
+.stat-value{font-size:28px;font-weight:700;margin-top:4px}
+.badge{display:inline-block;padding:3px 8px;border-radius:12px;font-size:10px;font-weight:600;text-transform:uppercase}
+.badge-green{background:rgba(34,197,94,.1);color:var(--green)}
+.badge-orange{background:rgba(245,158,11,.1);color:var(--orange)}
+.badge-red{background:rgba(239,68,68,.1);color:var(--red)}
+.badge-blue{background:rgba(91,184,240,.1);color:var(--accent)}
+.badge-purple{background:rgba(168,85,247,.1);color:var(--purple)}
+.table-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);overflow-x:auto;transition:background .3s}
+.table-top{display:flex;align-items:center;justify-content:space-between;padding:16px;border-bottom:1px solid var(--border);gap:12px;flex-wrap:wrap}
+.table-top input{max-width:260px}
 table{width:100%;border-collapse:collapse;min-width:600px}
-thead{background:var(--b7)}
-th{text-align:left;padding:12px 20px;font-size:11px;font-weight:600;color:var(--t2);text-transform:uppercase;letter-spacing:.05em;white-space:nowrap}
-td{padding:14px 20px;border-top:1px solid var(--b6);font-size:13px;vertical-align:middle;color:var(--t1)}
-tr:hover td{background:rgba(37,99,235,.03)}
-.thumb{width:48px;height:48px;border-radius:6px;object-fit:cover;background:var(--b7)}
-.action-btns{display:flex;gap:8px}
+thead{background:var(--bg3)}
+th{text-align:left;padding:10px 16px;font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;white-space:nowrap}
+td{padding:10px 16px;border-top:1px solid var(--border);font-size:13px;vertical-align:middle}
+tr:hover td{background:rgba(91,184,240,.02)}
+.thumb{width:40px;height:40px;border-radius:6px;object-fit:cover;flex-shrink:0}
+.thumb-placeholder{width:40px;height:40px;border-radius:6px;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.product-row{cursor:pointer;transition:background .15s}
+.product-row:hover td{background:rgba(91,184,240,.04)!important}
+.product-row td:first-child{display:flex;align-items:center;gap:12px}
 
-/* Modal */
-.modal-overlay{position:fixed;inset:0;background:rgba(6,14,28,.85);backdrop-filter:blur(8px);z-index:400;display:none;align-items:center;justify-content:center;padding:40px 20px;overflow-y:auto}
-.modal-overlay.open{display:flex}
-.modal{background:var(--b8);border:1px solid var(--b6);border-radius:12px;width:100%;max-width:600px;padding:28px;max-height:90vh;overflow-y:auto}
-.modal h3{font-family:var(--fd);font-size:20px;font-weight:600;margin-bottom:20px;color:var(--b1);display:flex;align-items:center;justify-content:space-between}
-.close-btn{background:none;color:var(--t2);font-size:20px;padding:4px;cursor:pointer;border:none}
-.close-btn:hover{color:var(--b1)}
-.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
-.form-grid.full{grid-template-columns:1fr}
-.form-actions{display:flex;gap:12px;justify-content:flex-end;margin-top:24px;padding-top:20px;border-top:1px solid var(--b6)}
+/* Expandable inline edit */
+.expand-row{display:none}
+.expand-row.open{display:table-row}
+.expand-row td{padding:0!important;border-top:none!important}
+.expand-content{padding:20px;background:var(--bg3);border-top:1px solid var(--border);border-bottom:2px solid var(--accent);transition:background .3s}
+.expand-content .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.expand-content .form-grid.full{grid-template-columns:1fr}
+.expand-content .form-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:16px;padding-top:16px;border-top:1px solid var(--border)}
+.expand-content .img-preview{display:flex;align-items:center;gap:16px;margin-bottom:16px}
+.expand-content .img-preview img{width:80px;height:80px;border-radius:8px;object-fit:cover;border:2px solid var(--border)}
+.expand-content .img-preview .img-placeholder{width:80px;height:80px;border-radius:8px;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:28px;border:2px dashed var(--border)}
+.upload-btn{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);font-size:12px;color:var(--text2);cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
+.upload-btn:hover{border-color:var(--accent);color:var(--text)}
+.upload-btn input[type="file"]{position:absolute;inset:0;opacity:0;cursor:pointer}
+.upload-status{font-size:11px;color:var(--accent);margin-top:4px}
+.form-hint{font-size:11px;color:var(--text2);margin-top:4px;line-height:1.5}
 
-/* Responsive */
-@media(max-width:768px){
-  .form-grid{grid-template-columns:1fr}
-  .top-nav .nav-links a:not(.btn){display:none}
-  .main-content{padding:1rem}
-  .stats{grid-template-columns:repeat(2,1fr)}
+/* New product modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(4px);z-index:100;display:flex;align-items:flex-start;justify-content:center;padding:40px 20px;overflow-y:auto}
+.modal{background:var(--bg2);border:1px solid var(--border);border-radius:12px;width:100%;max-width:640px;padding:28px;transition:background .3s}
+.modal h3{font-size:18px;font-weight:600;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between}
+.close-btn{background:none;color:var(--text2);font-size:18px;padding:4px;cursor:pointer;border:none}
+
+.guide{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:20px;transition:background .3s}
+.guide h3{font-size:16px;font-weight:600;margin-bottom:12px;color:var(--accent)}
+.guide p,.guide li{font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:8px}
+.guide ol{padding-left:20px;margin-bottom:16px}
+.tip{background:rgba(91,184,240,.06);border-left:3px solid var(--accent);padding:12px 16px;border-radius:0 var(--radius) var(--radius) 0;margin:12px 0}
+.tip p{margin:0!important}
+.toast{position:fixed;bottom:20px;right:20px;background:var(--green);color:#fff;padding:12px 20px;border-radius:var(--radius);font-weight:500;font-size:13px;z-index:200;animation:slideUp .3s}
+.toast.err{background:var(--red)}
+@keyframes slideUp{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+
+/* Touch improvements */
+*{-webkit-tap-highlight-color:transparent}
+button,select,.nav-item,.product-row,.theme-toggle,.upload-btn{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
+@media(hover:none){
+  .product-row:active td{background:rgba(91,184,240,.06)!important}
+  .btn:active{transform:scale(0.97)}
+  .nav-item:active{background:rgba(91,184,240,.1)}
 }
+.hide-mobile{}
+@media(max-width:768px){.hide-mobile{display:none}}
+/* ═══ MOBILE MENU ═══ */
+.mobile-header{display:none;position:fixed;top:0;left:0;right:0;background:var(--bg2);border-bottom:1px solid var(--border);padding:12px 16px;z-index:50;align-items:center;justify-content:space-between}
+.mobile-header .logo-m{font-size:16px;font-weight:700;color:var(--accent)}
+.hamburger{background:none;border:none;color:var(--text);font-size:22px;padding:4px 8px;cursor:pointer}
+.mobile-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:90}
+.sidebar.mobile-open{display:flex!important;flex-direction:column;position:fixed;z-index:95;left:0;top:0;width:260px;height:100vh;box-shadow:4px 0 20px rgba(0,0,0,.3)}
 
-/* Toast */
-.toast{position:fixed;bottom:20px;right:20px;background:var(--ol);color:#fff;padding:14px 24px;border-radius:var(--radius);font-weight:500;font-size:13px;z-index:500;animation:slideUp .3s;box-shadow:0 10px 30px rgba(0,0,0,.3)}
-@keyframes slideUp{from{transform:translateY(100px);opacity:0}to{transform:translateY(0);opacity:1}}
-.loading{opacity:.5;pointer-events:none}
+@media(max-width:768px){
+  .mobile-header{display:flex}
+  .sidebar{display:none}
+  .main{margin-left:0;padding:60px 12px 16px}
+  .page-header{flex-direction:column;align-items:flex-start;gap:8px}
+  .page-header h2{font-size:18px}
+  .stats{grid-template-columns:1fr 1fr;gap:8px}
+  .stat-card{padding:14px}
+  .stat-value{font-size:22px}
+  .table-wrap{border-radius:6px}
+  .table-top{padding:10px 12px}
+  .table-top input{max-width:100%;flex:1}
+  table{min-width:auto!important;font-size:12px}
+  th,td{padding:8px 10px}
+  .expand-content{padding:14px}
+  .expand-content .form-grid{grid-template-columns:1fr}
+  .expand-content .img-preview{flex-direction:column;align-items:flex-start}
+  .modal{padding:20px;margin:10px;max-width:calc(100vw - 20px)}
+  .modal-overlay{padding:10px}
+  .modal .form-grid{grid-template-columns:1fr!important}
+  .btn{padding:10px 16px;font-size:14px}
+  .btn-sm{padding:7px 12px;font-size:12px}
+  input,select,textarea{padding:10px 12px;font-size:14px}
+  .product-row td:first-child{flex-direction:column;gap:6px;align-items:flex-start}
+  .badge{font-size:9px;padding:2px 6px}
+  .upload-btn{padding:10px 16px;font-size:13px}
+  .nav-item{padding:14px 20px;font-size:14px}
+  .theme-toggle{margin:12px 20px;padding:12px}
+  .guide{padding:16px}
+}
+@media(max-width:400px){
+  .stats{grid-template-columns:1fr}
+  .form-actions{flex-direction:column}
+  .form-actions .btn{width:100%;justify-content:center}
+}
 </style>
 </head>
 <body>
-
-<!-- Navigation -->
-<nav class="top-nav" id="topNav" style="display:none">
-  <a href="index.html" class="logo">Bodulica</a>
-  <div class="nav-links">
-    <a href="index.html">Početna</a>
-    <a href="shop.html">Shop</a>
-    <a href="admin.html" class="active">Admin</a>
-    <button class="btn btn-secondary btn-sm" onclick="logout()">Odjava</button>
-  </div>
-</nav>
-
-<!-- Login Screen -->
-<div id="loginScreen" class="login-wrap">
-  <div class="login-box">
-    <h1>Bodulica Admin</h1>
-    <p>Prijavite se za upravljanje proizvodima</p>
-    <form id="loginForm">
-      <div class="field">
-        <label>Korisničko ime</label>
-        <input type="text" id="username" placeholder="admin" required>
-      </div>
-      <div class="field">
-        <label>Lozinka</label>
-        <input type="password" id="password" placeholder="••••••" required>
-      </div>
-      <div class="error" id="loginError"></div>
-      <button type="submit" class="btn-login">Prijava</button>
-    </form>
-  </div>
-</div>
-
-<!-- Dashboard -->
-<div id="dashboard" class="main-content" style="display:none">
-  <div class="container">
-    <div class="page-header">
-      <h2>Upravljanje Proizvodima</h2>
-      <button class="btn btn-primary" onclick="openModal()">+ Novi Proizvod</button>
-    </div>
-
-    <div class="stats">
-      <div class="stat-card">
-        <div class="stat-label">Ukupno Proizvoda</div>
-        <div class="stat-value" id="totalProducts">0</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Kategorije</div>
-        <div class="stat-value" id="totalCategories">0</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Akcije</div>
-        <div class="stat-value"><span class="badge badge-orange" id="saleCount">0</span></div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Status</div>
-        <div class="stat-value"><span class="badge badge-green" id="apiStatus">Online</span></div>
-      </div>
-    </div>
-
-    <div class="table-wrap">
-      <div class="table-top">
-        <h3>Svi Proizvodi</h3>
-        <input type="text" id="searchInput" placeholder="Pretraži proizvode..." onkeyup="searchProducts()">
-      </div>
-      <div style="overflow-x:auto">
-        <table>
-          <thead>
-            <tr>
-              <th>Slika</th>
-              <th>Naziv</th>
-              <th>Kategorija</th>
-              <th>Marka</th>
-              <th>Cijena</th>
-              <th>Akcije</th>
-            </tr>
-          </thead>
-          <tbody id="productTable">
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Product Modal -->
-<div id="productModal" class="modal-overlay" onclick="closeModalOnOverlay(event)">
-  <div class="modal" onclick="event.stopPropagation()">
-    <h3>
-      <span id="modalTitle">Novi Proizvod</span>
-      <button class="close-btn" onclick="closeModal()">×</button>
-    </h3>
-    <form id="productForm">
-      <input type="hidden" id="productId">
-      <div class="form-grid full">
-        <div class="field">
-          <label>Naziv Proizvoda *</label>
-          <input type="text" id="pName" required>
-        </div>
-      </div>
-      <div class="form-grid">
-        <div class="field">
-          <label>Kategorija *</label>
-          <select id="pCategory" required>
-            <option value="delicije">Delicije</option>
-            <option value="kozmetika">Kozmetika</option>
-            <option value="hidrolati">Hidrolati</option>
-            <option value="djeca">Djeca & Pokloni</option>
-            <option value="rucni-rad">Ručni rad</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>Marka *</label>
-          <input type="text" id="pBrand" required>
-        </div>
-      </div>
-      <div class="form-grid">
-        <div class="field">
-          <label>Cijena (EUR) *</label>
-          <input type="number" id="pPrice" step="0.01" min="0" required>
-        </div>
-        <div class="field">
-          <label>Badge</label>
-          <select id="pBadge">
-            <option value="">Nijedan</option>
-            <option value="new">Novo</option>
-            <option value="hot">Popularno</option>
-            <option value="award">Nagrada</option>
-            <option value="eco">Eko</option>
-          </select>
-        </div>
-      </div>
-      <div class="form-grid full">
-        <div class="field">
-          <label>URL Slike</label>
-          <input type="url" id="pImage" placeholder="https://...">
-        </div>
-      </div>
-      <div class="form-actions">
-        <button type="button" class="btn btn-secondary" onclick="closeModal()">Odustani</button>
-        <button type="submit" class="btn btn-primary">Spremi</button>
-      </div>
-    </form>
-  </div>
-</div>
-
+<div id="app"></div>
 <script>
-// Supabase config
-const SUPABASE_URL = 'https://mbputwgppweoeujiszgv.supabase.co';
-const API_URL = SUPABASE_URL + '/functions/v1/bodulica-api';
+var API="https://mbputwgppweoeujiszgv.supabase.co/functions/v1/bodulica-api";
+var token=localStorage.getItem("bod-admin-token");
+var theme=localStorage.getItem("bod-admin-theme")||"dark";
+var page="dashboard",products=[],orders=[],stats={},expandedId=null,expandedOrderId=null,showNewModal=false,search="";
+document.documentElement.setAttribute("data-theme",theme);
+var CATS=[{v:"moda",l:"Moda"},{v:"delicije",l:"Delicije"},{v:"kozmetika",l:"Kozmetika"},{v:"rucni-rad",l:"Ru\u010dni radovi"},{v:"art",l:"Art"},{v:"djeca",l:"Djeca"}];
+var ST={pending:{l:"Na \u010dekanju",c:"badge-orange"},paid:{l:"Pla\u0107eno",c:"badge-green"},processing:{l:"U pripremi",c:"badge-blue"},shipped:{l:"Poslano",c:"badge-purple"},delivered:{l:"Dostavljeno",c:"badge-green"},cancelled:{l:"Otkazano",c:"badge-red"}};
 
-// Auth
-const ADMIN_USER = 'admin';
-const ADMIN_PASS = 'bodulica2026';
+function toggleTheme(){theme=theme==="dark"?"light":"dark";document.documentElement.setAttribute("data-theme",theme);localStorage.setItem("bod-admin-theme",theme);render();}
 
-let products = [];
-let editingId = null;
-
-// Fetch products from Supabase
-async function fetchProducts() {
-  try {
-    document.body.classList.add('loading');
-    const response = await fetch(API_URL + '/products');
-    if(response.ok) {
-      products = await response.json();
-      document.getElementById('apiStatus').textContent = 'Online';
-      document.getElementById('apiStatus').className = 'badge badge-green';
-    } else {
-      throw new Error('API Error');
-    }
-  } catch(e) {
-    console.error('Error fetching products:', e);
-    document.getElementById('apiStatus').textContent = 'Offline';
-    document.getElementById('apiStatus').className = 'badge badge-red';
-    // Fallback to localStorage
-    products = JSON.parse(localStorage.getItem('bodulicaProducts')) || [];
-  } finally {
-    document.body.classList.remove('loading');
-    loadProducts();
-    updateStats();
-  }
-}
-
-// Login
-document.getElementById('loginForm').addEventListener('submit', function(e){
-  e.preventDefault();
-  const u = document.getElementById('username').value;
-  const p = document.getElementById('password').value;
-  
-  if(u === ADMIN_USER && p === ADMIN_PASS){
-    sessionStorage.setItem('bodulicaAdmin', 'loggedIn');
-    showDashboard();
-    fetchProducts();
-  } else {
-    document.getElementById('loginError').textContent = 'Neispravni podaci za prijavu';
-  }
-});
-
-function showDashboard(){
-  document.getElementById('loginScreen').style.display = 'none';
-  document.getElementById('dashboard').style.display = 'block';
-  document.getElementById('topNav').style.display = 'flex';
-}
-
-function logout(){
-  sessionStorage.removeItem('bodulicaAdmin');
-  location.reload();
-}
-
-// Check auth on load
-if(sessionStorage.getItem('bodulicaAdmin') === 'loggedIn'){
-  showDashboard();
-  fetchProducts();
-}
-
-// Products
-function loadProducts(){
-  const tbody = document.getElementById('productTable');
-  tbody.innerHTML = products.map(p => `
-    <tr>
-      <td><img src="${p.image || 'https://via.placeholder.com/48'}" class="thumb" alt="${p.name}"></td>
-      <td><strong>${p.name}</strong></td>
-      <td><span class="badge badge-blue">${p.category}</span></td>
-      <td>${p.brand}</td>
-      <td>${p.price.toFixed(2)} EUR</td>
-      <td>
-        <div class="action-btns">
-          <button class="btn btn-secondary btn-sm" onclick="editProduct('${p.id}')">Uredi</button>
-          <button class="btn btn-danger btn-sm" onclick="deleteProduct('${p.id}')">Obriši</button>
-        </div>
-      </td>
-    </tr>
-  `).join('');
-}
-
-function updateStats(){
-  document.getElementById('totalProducts').textContent = products.length;
-  const cats = new Set(products.map(p => p.category));
-  document.getElementById('totalCategories').textContent = cats.size;
-  document.getElementById('saleCount').textContent = products.filter(p => p.badge).length;
-}
-
-function searchProducts(){
-  const term = document.getElementById('searchInput').value.toLowerCase();
-  const rows = document.querySelectorAll('#productTable tr');
-  rows.forEach(row => {
-    const text = row.textContent.toLowerCase();
-    row.style.display = text.includes(term) ? '' : 'none';
+function apiCall(path,method,body){
+  method=method||"GET";
+  var opts={method:method,headers:{"Content-Type":"application/json"}};
+  if(token)opts.headers["Authorization"]="Bearer "+token;
+  if(body)opts.body=JSON.stringify(body);
+  return fetch(API+path,opts).then(function(r){
+    return r.json().then(function(data){
+      if(r.status===401){token=null;localStorage.removeItem("bod-admin-token");render();throw new Error("Neovla\u0161teni pristup");}
+      if(r.status>=400)throw new Error(data.error||"Gre\u0161ka");
+      return data;
+    });
   });
 }
 
-// Modal
-function openModal(){
-  editingId = null;
-  document.getElementById('modalTitle').textContent = 'Novi Proizvod';
-  document.getElementById('productForm').reset();
-  document.getElementById('productModal').classList.add('open');
+function uploadFile(file,callback){
+  var fd=new FormData();fd.append("file",file);
+  fetch(API+"/api/upload",{method:"POST",headers:{"Authorization":"Bearer "+token},body:fd})
+  .then(function(r){return r.json();})
+  .then(function(d){if(d.error)throw new Error(d.error);callback(null,d.url);})
+  .catch(function(e){callback(e.message);});
 }
 
-function editProduct(id){
-  const p = products.find(x => x.id === id);
-  if(!p) return;
-  editingId = id;
-  document.getElementById('modalTitle').textContent = 'Uredi Proizvod';
-  document.getElementById('pName').value = p.name;
-  document.getElementById('pCategory').value = p.category;
-  document.getElementById('pBrand').value = p.brand;
-  document.getElementById('pPrice').value = p.price;
-  document.getElementById('pBadge').value = p.badge || '';
-  document.getElementById('pImage').value = p.image || '';
-  document.getElementById('productModal').classList.add('open');
+function login(){
+  var pass=document.getElementById("loginPass").value;
+  var err=document.getElementById("loginError");err.textContent="";
+  apiCall("/api/login","POST",{password:pass}).then(function(d){
+    if(d.ok){token=d.token;localStorage.setItem("bod-admin-token",token);loadData().then(render);}
+  }).catch(function(e){err.textContent=e.message;});
 }
+function logout(){token=null;localStorage.removeItem("bod-admin-token");render();}
+function loadData(){return Promise.all([apiCall("/api/stats"),apiCall("/api/products"),apiCall("/api/orders")]).then(function(r){stats=r[0];products=r[1];orders=r[2];}).catch(function(e){console.error(e);});}
 
-function closeModal(){
-  document.getElementById('productModal').classList.remove('open');
-}
-
-function closeModalOnOverlay(e){
-  if(e.target === document.getElementById('productModal')){
-    closeModal();
-  }
-}
-
-// Save product - now with Supabase
-document.getElementById('productForm').addEventListener('submit', async function(e){
-  e.preventDefault();
-  
-  const product = {
-    id: editingId || 'p' + Date.now(),
-    name: document.getElementById('pName').value,
-    category: document.getElementById('pCategory').value,
-    brand: document.getElementById('pBrand').value,
-    price: parseFloat(document.getElementById('pPrice').value),
-    badge: document.getElementById('pBadge').value,
-    image: document.getElementById('pImage').value || 'https://via.placeholder.com/400'
+function saveProduct(isNew){
+  var prefix=isNew?"new-":"edit-";
+  var data={
+    name:document.getElementById(prefix+"name").value,
+    brand:document.getElementById(prefix+"brand").value||null,
+    category:document.getElementById(prefix+"category").value,
+    price:parseFloat(document.getElementById(prefix+"price").value),
+    stock_quantity:parseInt(document.getElementById(prefix+"stock").value)||0,
+    is_active:document.getElementById(prefix+"active").value==="true",
+    is_unique:document.getElementById(prefix+"unique").value==="true",
+    description:document.getElementById(prefix+"desc").value||null,
+    dimensions:document.getElementById(prefix+"dims").value||null,
+    materials:document.getElementById(prefix+"mats").value||null,
+    image_url:document.getElementById(prefix+"imgurl").value||null,
+    stripe_price_id:document.getElementById(prefix+"stripe")? document.getElementById(prefix+"stripe").value||null : null
   };
-  
-  try {
-    document.body.classList.add('loading');
-    const response = await fetch(API_URL + '/products', {
-      method: editingId ? 'PUT' : 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify(product)
+  var id=isNew?null:expandedId;
+  var promise=id?apiCall("/api/products/"+id,"PUT",data):apiCall("/api/products","POST",data);
+  promise.then(function(){
+    toast(id?"Proizvod a\u017euriran":"Proizvod kreiran");
+    expandedId=null;showNewModal=false;return loadData();
+  }).then(render).catch(function(e){toast(e.message,true);});
+}
+
+function deleteProduct(id){
+  if(!confirm("Obrisati ovaj proizvod?"))return;
+  apiCall("/api/products/"+id,"DELETE").then(function(){toast("Obrisano");return loadData();}).then(render).catch(function(e){toast(e.message,true);});
+}
+function updateOrderStatus(id,status){
+  apiCall("/api/orders/"+id,"PUT",{status:status}).then(function(){toast("Status a\u017euriran");return loadData();}).then(render).catch(function(e){toast(e.message,true);});
+}
+
+function handleUpload(inputEl,previewId,urlFieldId,statusId){
+  var file=inputEl.files[0];if(!file)return;
+  var st=document.getElementById(statusId);st.textContent="Uploading...";
+  uploadFile(file,function(err,url){
+    if(err){st.textContent="\u274c "+err;return;}
+    document.getElementById(urlFieldId).value=url;
+    var prev=document.getElementById(previewId);
+    if(prev)prev.innerHTML='<img src="'+url+'" style="width:80px;height:80px;border-radius:8px;object-fit:cover;border:2px solid var(--border)">';
+    st.textContent="\u2705 Uploadano";
+  });
+}
+
+function toast(msg,isErr){var el=document.createElement("div");el.className="toast"+(isErr?" err":"");el.textContent=msg;document.body.appendChild(el);setTimeout(function(){el.remove();},3000);}
+function esc(s){return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
+function fmtDate(d){if(!d)return"\u2014";return new Date(d).toLocaleDateString("hr-HR",{day:"numeric",month:"short",year:"numeric"});}
+function bdg(s){var x=ST[s]||{l:s,c:"badge-orange"};return '<span class="badge '+x.c+'">'+x.l+'</span>';}
+function catLabel(c){var x=CATS.find(function(i){return i.v===c;});return x?x.l:c;}
+function catOpts(sel){return '<option value="">-- Odaberi --</option>'+CATS.map(function(c){return '<option value="'+c.v+'" '+(sel===c.v?"selected":"")+'>'+c.l+'</option>';}).join("");}
+
+function orderDetails(o){
+  var h='<div class="form-grid"><div><label>Kupac</label><div style="font-size:14px;font-weight:600">'+esc(o.customer_name||"\u2014")+'</div></div><div><label>Email</label><div style="font-size:13px">'+esc(o.customer_email||"\u2014")+'</div></div></div>';
+  h+='<div class="form-grid"><div><label>Telefon</label><div style="font-size:13px">'+esc(o.customer_phone||"\u2014")+'</div></div><div><label>Datum narud\u017ebe</label><div style="font-size:13px">'+fmtDate(o.created_at)+'</div></div></div>';
+  h+='<div style="margin:16px 0 8px;border-top:1px solid var(--border);padding-top:12px"><label>Adresa za dostavu</label></div>';
+  h+='<div class="form-grid"><div><div style="font-size:13px"><strong>'+esc(o.shipping_name||o.customer_name||"\u2014")+'</strong></div>';
+  h+='<div style="font-size:13px;color:var(--text2)">'+esc(o.shipping_address||"Nije unesena")+'</div>';
+  h+='<div style="font-size:13px;color:var(--text2)">'+esc([o.shipping_postal_code,o.shipping_city].filter(Boolean).join(" ")||"")+'</div>';
+  h+='<div style="font-size:13px;color:var(--text2)">'+esc(o.shipping_country||"")+'</div></div>';
+  h+='<div><label>Pla\u0107anje</label><div style="font-size:13px">Ukupno: <strong>'+parseFloat(o.total||0).toFixed(2)+' \u20ac</strong></div>';
+  h+='<div style="font-size:12px;color:var(--text2)">Proizvodi: '+parseFloat(o.subtotal||0).toFixed(2)+' \u20ac</div>';
+  h+='<div style="font-size:12px;color:var(--text2)">Dostava: '+parseFloat(o.shipping_cost||0).toFixed(2)+' \u20ac</div></div></div>';
+  if(o.items&&o.items.length){
+    h+='<div style="margin:16px 0 8px;border-top:1px solid var(--border);padding-top:12px"><label>Naru\u010deni proizvodi</label></div>';
+    h+='<table style="min-width:auto"><thead><tr><th>Proizvod</th><th>Kol.</th><th>Cijena</th><th>Ukupno</th></tr></thead><tbody>';
+    o.items.forEach(function(it){
+      h+='<tr><td>'+esc(it.product_name)+'</td><td>'+it.quantity+'</td><td>'+parseFloat(it.unit_price||0).toFixed(2)+' \u20ac</td><td>'+parseFloat(it.total_price||0).toFixed(2)+' \u20ac</td></tr>';
     });
-    
-    if(response.ok) {
-      await fetchProducts();
-      closeModal();
-      showToast('Proizvod spremljen!');
-    } else {
-      throw new Error('Save failed');
-    }
-  } catch(err) {
-    // Fallback to localStorage
-    if(editingId){
-      const idx = products.findIndex(p => p.id === editingId);
-      products[idx] = product;
-    } else {
-      products.push(product);
-    }
-    localStorage.setItem('bodulicaProducts', JSON.stringify(products));
-    loadProducts();
-    updateStats();
-    closeModal();
-    showToast('Proizvod spremljen (offline mode)');
-  } finally {
-    document.body.classList.remove('loading');
+    h+='</tbody></table>';
   }
-});
+  return h;
+}
 
-async function deleteProduct(id){
-  if(!confirm('Jeste li sigurni da želite obrisati ovaj proizvod?')) return;
-  
-  try {
-    document.body.classList.add('loading');
-    const response = await fetch(API_URL + '/products?id=' + id, {method: 'DELETE'});
-    
-    if(response.ok) {
-      await fetchProducts();
-      showToast('Proizvod obrisan');
-    } else {
-      throw new Error('Delete failed');
-    }
-  } catch(err) {
-    products = products.filter(p => p.id !== id);
-    localStorage.setItem('bodulicaProducts', JSON.stringify(products));
-    loadProducts();
-    updateStats();
-    showToast('Proizvod obrisan (offline mode)');
-  } finally {
-    document.body.classList.remove('loading');
+function render(){
+  var app=document.getElementById("app");
+  if(!token){
+    app.innerHTML='<div class="login-wrap"><div class="login-box"><h1>\ud83c\udfe0 Bodulica</h1><p>Admin Panel</p><div class="field"><label>Admin lozinka</label><input type="password" id="loginPass" placeholder="\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022"></div><button class="btn-login" id="btnLogin">Prijavi se</button><div class="error" id="loginError"></div></div></div>';
+    document.getElementById("btnLogin").onclick=login;
+    document.getElementById("loginPass").onkeydown=function(e){if(e.key==="Enter")login();};
+    return;
+  }
+  var navItems=[{id:"dashboard",icon:"\ud83d\udcca",label:"Pregled"},{id:"products",icon:"\ud83d\udecd\ufe0f",label:"Proizvodi"},{id:"orders",icon:"\ud83d\udce6",label:"Narud\u017ebe"},{id:"guide",icon:"\ud83d\udcb3",label:"Vodi\u010d"}];
+  var navHtml=navItems.map(function(i){return '<div class="nav-item '+(page===i.id?"active":"")+'" data-page="'+i.id+'">'+i.icon+" "+i.label+'</div>';}).join("");
+  var themeIcon=theme==="dark"?"\u2600\ufe0f Svijetli":"\ud83c\udf19 Tamni";
+  app.innerHTML='<div class="mobile-header"><span class="logo-m">Bodulica</span><button class="hamburger" id="menuBtn">\u2630</button></div><div class="mobile-overlay" id="mobileOverlay"></div><div class="sidebar"><div class="logo">Bodulica<span>Admin Panel</span></div>'+navHtml+'<div class="nav-sep"></div><div class="theme-toggle" id="themeBtn">'+themeIcon+'</div><div class="nav-item" id="btnLogout">\ud83d\udeaa Odjavi se</div></div><div class="main" id="mainContent"></div>';
+  document.querySelectorAll(".nav-item[data-page]").forEach(function(el){el.onclick=function(){page=el.dataset.page;search="";expandedId=null;render();};});
+  document.getElementById("btnLogout").onclick=logout;
+  document.getElementById("themeBtn").onclick=toggleTheme;
+  var menuBtn=document.getElementById("menuBtn");
+  var mobileOverlay=document.getElementById("mobileOverlay");
+  if(menuBtn){
+    menuBtn.onclick=function(){
+      document.querySelector(".sidebar").classList.toggle("mobile-open");
+      mobileOverlay.style.display=mobileOverlay.style.display==="block"?"none":"block";
+    };
+    mobileOverlay.onclick=function(){
+      document.querySelector(".sidebar").classList.remove("mobile-open");
+      mobileOverlay.style.display="none";
+    };
+  }
+  document.querySelectorAll(".nav-item[data-page]").forEach(function(el){
+    var origClick=el.onclick;
+    el.onclick=function(){
+      page=el.dataset.page;search="";expandedId=null;
+      document.querySelector(".sidebar").classList.remove("mobile-open");
+      if(mobileOverlay)mobileOverlay.style.display="none";
+      render();
+    };
+  });
+  document.getElementById("mainContent").innerHTML=renderPage();
+  bindEvents();
+}
+
+function renderPage(){
+  if(page==="dashboard")return renderDash();
+  if(page==="products")return renderProds();
+  if(page==="orders")return renderOrds();
+  if(page==="guide")return renderGuide();
+  return "";
+}
+
+function renderDash(){
+  var rows=orders.slice(0,5).map(function(o){
+    var isOpen=expandedOrderId===o.id;
+    var r='<tr class="product-row" data-otoggle="'+o.id+'"><td><strong>'+esc(o.order_number||"\u2014")+'</strong></td><td>'+esc(o.customer_name||o.customer_email||"\u2014")+'</td><td>'+parseFloat(o.total||0).toFixed(2)+' \u20ac</td><td>'+bdg(o.status)+'</td><td>'+fmtDate(o.created_at)+'</td><td style="text-align:right">'+(isOpen?"\u25b2":"\u25bc")+'</td></tr>';
+    r+='<tr class="expand-row '+(isOpen?"open":"")+'" id="oexp-'+o.id+'"><td colspan="6"><div class="expand-content">';
+    r+=orderDetails(o);
+    r+='</div></td></tr>';
+    return r;
+  }).join("")||'<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--text2)">Nema narud\u017ebi</td></tr>';
+  return '<div class="page-header"><h2>\ud83d\udcca Pregled</h2></div><div class="stats"><div class="stat-card"><div class="stat-label">Narud\u017ebe</div><div class="stat-value">'+(stats.orders||0)+'</div></div><div class="stat-card"><div class="stat-label">Prihod</div><div class="stat-value">'+(stats.revenue||0).toFixed(2)+' \u20ac</div></div><div class="stat-card"><div class="stat-label">Proizvodi</div><div class="stat-value">'+(stats.products||0)+'</div></div><div class="stat-card"><div class="stat-label">Kupci</div><div class="stat-value">'+(stats.uniqueCustomers||0)+'</div></div></div><div class="table-wrap"><div class="table-top"><strong>Zadnje narud\u017ebe</strong></div><table><thead><tr><th>Broj</th><th>Kupac</th><th>Iznos</th><th>Status</th><th>Datum</th><th></th></tr></thead><tbody>'+rows+'</tbody></table></div>';
+}
+
+function renderProds(){
+  var rows="";
+  products.forEach(function(p){
+    var vis=true;
+    if(search){vis=(p.name+" "+p.brand+" "+p.category).toLowerCase().indexOf(search.toLowerCase())>=0;}
+    if(!vis)return;
+    var img=p.image_url?'<img class="thumb" src="'+esc(p.image_url)+'">':'<div class="thumb-placeholder">\ud83d\udecd\ufe0f</div>';
+    var badges=(p.is_unique?'<span class="badge badge-purple">Unikat</span> ':'')+(p.is_active?'<span class="badge badge-green">Aktivan</span>':'<span class="badge badge-red">Neaktivan</span>');
+    var isOpen=expandedId===p.id;
+    rows+='<tr class="product-row" data-toggle="'+p.id+'"><td>'+img+'<div><strong>'+esc(p.name)+'</strong><br><span style="font-size:11px;color:var(--text2)">'+esc(p.slug)+'</span></div></td><td>'+esc(p.brand||"\u2014")+'</td><td>'+catLabel(p.category)+'</td><td><strong>'+parseFloat(p.price).toFixed(2)+' \u20ac</strong></td><td>'+(p.stock_quantity||0)+'</td><td>'+badges+'</td><td style="text-align:right;font-size:16px">'+(isOpen?"\u25b2":"\u25bc")+'</td></tr>';
+    rows+='<tr class="expand-row '+(isOpen?"open":"")+'" id="expand-'+p.id+'"><td colspan="7"><div class="expand-content">';
+    rows+='<div class="img-preview"><div id="edit-imgpreview">'+(p.image_url?'<img src="'+esc(p.image_url)+'" style="width:80px;height:80px;border-radius:8px;object-fit:cover;border:2px solid var(--border)">':'<div class="img-placeholder">\ud83d\udcf7</div>')+'</div><div><label class="upload-btn">\ud83d\udcc1 Promijeni sliku<input type="file" accept="image/*" id="edit-fileInput"></label><div class="upload-status" id="edit-uploadStatus"></div><input type="hidden" id="edit-imgurl" value="'+esc(p.image_url||"")+'"></div></div>';
+    rows+='<div class="form-grid"><div><label>Naziv</label><input id="edit-name" value="'+esc(p.name)+'"></div><div><label>Brand</label><input id="edit-brand" value="'+esc(p.brand||"")+'"></div></div>';
+    rows+='<div class="form-grid"><div><label>Kategorija</label><select id="edit-category">'+catOpts(p.category)+'</select></div><div><label>Cijena (EUR)</label><input id="edit-price" type="number" step="0.01" value="'+p.price+'"></div></div>';
+    rows+='<div class="form-grid"><div><label>Tip</label><select id="edit-unique"><option value="false" '+(p.is_unique!==true?"selected":"")+'>Na zalihi</option><option value="true" '+(p.is_unique===true?"selected":"")+'>Unikat (1 komad)</option></select></div><div><label>Zaliha</label><input id="edit-stock" type="number" min="0" value="'+(p.stock_quantity||0)+'"'+(p.is_unique?" disabled":"")+'></div></div>';
+    rows+='<div class="form-grid"><div><label>Status</label><select id="edit-active"><option value="true" '+(p.is_active!==false?"selected":"")+'>Aktivan</option><option value="false" '+(p.is_active===false?"selected":"")+'>Neaktivan</option></select></div><div><label>Dimenzije</label><input id="edit-dims" value="'+esc(p.dimensions||"")+'"></div></div>';
+    rows+='<div class="form-grid full"><div><label>Opis</label><textarea id="edit-desc">'+esc(p.description||"")+'</textarea></div></div>';
+    rows+='<div class="form-grid"><div><label>Materijali</label><input id="edit-mats" value="'+esc(p.materials||"")+'"></div><div><label>Stripe Price ID</label><input id="edit-stripe" value="'+esc(p.stripe_price_id||"")+'" placeholder="Automatski"></div></div>';
+    rows+='<div class="form-actions"><button class="btn btn-danger btn-sm" data-del="'+p.id+'">\ud83d\uddd1\ufe0f Obri\u0161i</button><div style="flex:1"></div><button class="btn btn-secondary" data-cancel>Odustani</button><button class="btn btn-primary" data-save>\ud83d\udcbe Spremi</button></div>';
+    rows+='</div></td></tr>';
+  });
+  var modal="";
+  if(showNewModal){
+    modal='<div class="modal-overlay" id="modalOverlay"><div class="modal"><h3>\u2795 Novi proizvod<button class="close-btn" id="modalClose">\u2715</button></h3>';
+    modal+='<div class="img-preview"><div id="new-imgpreview"><div class="img-placeholder">\ud83d\udcf7</div></div><div><label class="upload-btn">\ud83d\udcc1 Odaberi sliku<input type="file" accept="image/*" id="new-fileInput"></label><div class="upload-status" id="new-uploadStatus"></div><input type="hidden" id="new-imgurl" value=""></div></div>';
+    modal+='<div class="form-grid"><div><label>Naziv *</label><input id="new-name" required></div><div><label>Brand</label><input id="new-brand"></div></div>';
+    modal+='<div class="form-grid"><div><label>Kategorija *</label><select id="new-category">'+catOpts("")+'</select></div><div><label>Cijena (EUR) *</label><input id="new-price" type="number" step="0.01" min="0"></div></div>';
+    modal+='<div class="form-grid"><div><label>Tip</label><select id="new-unique"><option value="false" selected>Na zalihi</option><option value="true">Unikat (1 komad)</option></select></div><div><label>Zaliha</label><input id="new-stock" type="number" min="0" value="10"></div></div>';
+    modal+='<div class="form-grid"><div><label>Status</label><select id="new-active"><option value="true" selected>Aktivan</option><option value="false">Neaktivan</option></select></div><div><label>Dimenzije</label><input id="new-dims"></div></div>';
+    modal+='<div class="form-grid full"><div><label>Opis</label><textarea id="new-desc"></textarea></div></div>';
+    modal+='<div class="form-grid"><div><label>Materijali</label><input id="new-mats"></div><div><label>Stripe Price ID</label><input id="new-stripe" placeholder="Automatski"></div></div>';
+    modal+='<div class="form-actions"><button class="btn btn-secondary" id="modalCancel">Odustani</button><button class="btn btn-primary" id="modalSave">\u2705 Kreiraj</button></div>';
+    modal+='</div></div>';
+  }
+  return '<div class="page-header"><h2>\ud83d\udecd\ufe0f Proizvodi ('+products.length+')</h2><button class="btn btn-primary" id="btnAdd">+ Novi proizvod</button></div><div class="table-wrap"><div class="table-top"><input type="text" placeholder="Pretra\u017ei..." id="searchInput"></div><table><thead><tr><th>Proizvod</th><th>Brand</th><th>Kategorija</th><th>Cijena</th><th>Zaliha</th><th>Status</th><th></th></tr></thead><tbody>'+rows+'</tbody></table></div>'+modal;
+}
+
+function renderOrds(){
+  var rows=orders.map(function(o){
+    var isOpen=expandedOrderId===o.id;
+    var sopts=Object.keys(ST).map(function(k){return '<option value="'+k+'" '+(o.status===k?"selected":"")+'>'+ST[k].l+'</option>';}).join("");
+    var r='<tr class="product-row" data-otoggle="'+o.id+'"><td><strong>'+esc(o.order_number||"\u2014")+'</strong></td><td>'+esc(o.customer_name||"\u2014")+'</td><td style="font-size:12px">'+esc(o.customer_email||"\u2014")+'</td><td><strong>'+parseFloat(o.total||0).toFixed(2)+' \u20ac</strong></td><td>'+bdg(o.status)+'</td><td>'+fmtDate(o.created_at)+'</td><td><select class="order-status" data-oid="'+o.id+'" style="font-size:11px;padding:4px 8px;width:auto" onclick="event.stopPropagation()">'+sopts+'</select></td><td style="text-align:right">'+(isOpen?"\u25b2":"\u25bc")+'</td></tr>';
+    r+='<tr class="expand-row '+(isOpen?"open":"")+'" id="oexp-'+o.id+'"><td colspan="8"><div class="expand-content">';
+    r+=orderDetails(o);
+    r+='</div></td></tr>';
+    return r;
+  }).join("")||'<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--text2)">Nema narud\u017ebi</td></tr>';
+  return '<div class="page-header"><h2>\ud83d\udce6 Narud\u017ebe ('+orders.length+')</h2></div><div class="table-wrap"><table><thead><tr><th>Broj</th><th>Kupac</th><th class="hide-mobile">Email</th><th>Iznos</th><th>Status</th><th class="hide-mobile">Datum</th><th class="hide-mobile">Promijeni</th><th></th></tr></thead><tbody>'+rows+'</tbody></table></div>';
+}
+
+function renderGuide(){
+  return '<div class="page-header"><h2>\ud83d\udcb3 Vodi\u010d</h2></div><div class="guide"><h3>Kako dodati novi proizvod</h3><ol><li>Klikni "+ Novi proizvod"</li><li>Uploadaj sliku, ispuni podatke</li><li>Odaberi tip: "Na zalihi" ili "Unikat"</li><li>Klikni "Kreiraj" \u2014 proizvod je odmah na shopu + u Stripe-u</li></ol><div class="tip"><p>Cijena i proizvod se automatski kreiraju u Stripe-u. Ne treba\u0161 ni\u0161ta raditi u Stripe Dashboardu.</p></div></div><div class="guide"><h3>Ure\u0111ivanje</h3><p>Klikni na bilo koji proizvod u tablici \u2014 otvori se forma za ure\u0111ivanje sa svim poljima i slikom. Promijeni \u0161to treba\u0161 i klikni Spremi.</p></div><div class="guide"><h3>Unikati</h3><p>Proizvodi koji postoje u 1 primjerku. Nakon prodaje automatski se uklanjaju s webshopa.</p></div><div class="guide"><h3>Narud\u017ebe</h3><p>Status: Pla\u0107eno \u2192 U pripremi \u2192 Poslano \u2192 Dostavljeno.</p></div>';
+}
+
+function bindEvents(){
+  var addBtn=document.getElementById("btnAdd");
+  if(addBtn)addBtn.onclick=function(){showNewModal=true;render();};
+
+  // Search without re-render
+  var searchEl=document.getElementById("searchInput");
+  if(searchEl){
+    searchEl.value=search;
+    searchEl.focus();
+    searchEl.oninput=function(){
+      search=searchEl.value.toLowerCase();
+      document.querySelectorAll(".product-row").forEach(function(row){
+        var text=row.textContent.toLowerCase();
+        var id=row.dataset.toggle;
+        var show=!search||text.indexOf(search)>=0;
+        row.style.display=show?"":"none";
+        var exp=document.getElementById("expand-"+id);
+        if(exp&&!show)exp.classList.remove("open");
+      });
+    };
+  }
+
+  // Toggle expand rows
+  document.querySelectorAll(".product-row[data-toggle]").forEach(function(row){
+    row.onclick=function(){
+      var id=row.dataset.toggle;
+      if(expandedId===id){expandedId=null;}else{expandedId=id;}
+      render();
+    };
+  });
+
+  // Expand row buttons
+  document.querySelectorAll("[data-save]").forEach(function(el){el.onclick=function(e){e.stopPropagation();saveProduct(false);};});
+  document.querySelectorAll("[data-cancel]").forEach(function(el){el.onclick=function(e){e.stopPropagation();expandedId=null;render();};});
+  document.querySelectorAll("[data-del]").forEach(function(el){el.onclick=function(e){e.stopPropagation();deleteProduct(el.dataset.del);};});
+
+  // Edit file upload
+  var editFile=document.getElementById("edit-fileInput");
+  if(editFile)editFile.onchange=function(){handleUpload(editFile,"edit-imgpreview","edit-imgurl","edit-uploadStatus");};
+
+  // Order status
+  document.querySelectorAll("[data-otoggle]").forEach(function(row){
+    row.onclick=function(e){
+      if(e.target.tagName==="SELECT"||e.target.tagName==="OPTION")return;
+      var id=row.dataset.otoggle;
+      expandedOrderId=expandedOrderId===id?null:id;
+      render();
+    };
+  });
+  document.querySelectorAll(".order-status").forEach(function(el){el.onchange=function(){updateOrderStatus(el.dataset.oid,el.value);};});
+
+  // New product modal
+  var overlay=document.getElementById("modalOverlay");
+  if(overlay){
+    overlay.onclick=function(e){if(e.target===overlay){showNewModal=false;render();}};
+    document.getElementById("modalClose").onclick=function(){showNewModal=false;render();};
+    document.getElementById("modalCancel").onclick=function(){showNewModal=false;render();};
+    document.getElementById("modalSave").onclick=function(){saveProduct(true);};
+    var newFile=document.getElementById("new-fileInput");
+    if(newFile)newFile.onchange=function(){handleUpload(newFile,"new-imgpreview","new-imgurl","new-uploadStatus");};
   }
 }
 
-function showToast(msg){
-  const t = document.createElement('div');
-  t.className = 'toast';
-  t.textContent = msg;
-  document.body.appendChild(t);
-  setTimeout(() => t.remove(), 3000);
-}
+if(token){loadData().then(render);}else{render();}
 </script>
-
 </body>
 </html>
