@@ -57,9 +57,9 @@ file_size_limit = "50MiB"
 [auth]
 enabled = true
 # The site URL is the URL where your app is hosted.
-site_url = "http://localhost:3000"
+site_url = "https://bodulica.shop"
 # A list of *exact* URLs that auth providers are permitted to redirect to post authentication.
-additional_redirect_urls = ["https://bodulica.pages.dev/**"]
+additional_redirect_urls = ["https://bodulica.shop/**", "https://bodulica.pages.dev/**"]
 # How long tokens are valid for, in seconds. Defaults to 3600 (1 hour), maximum 604800 (1 week).
 jwt_expiry = 3600
 # If disabled, the refresh token will never expire.
