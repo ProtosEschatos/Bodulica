@@ -36,8 +36,6 @@ enabled = true
 enabled = true
 # Port to use for Supabase Studio.
 port = 54323
-# External URL of the supabase image for the studio.
-image = "supabase/studio:20231123-5e43191"
 
 # Email testing server. Emails sent with the local dev setup are not actually delivered - rather,
 # they are monitored, and you can view the emails that would have been sent from the web interface.
