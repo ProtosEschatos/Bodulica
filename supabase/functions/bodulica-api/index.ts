@@ -182,6 +182,12 @@ serve(async (req) => {
 
   try {
     // Public endpoints
+    if (path === '/health' && method === 'GET') {
+      return new Response(JSON.stringify({ status: 'ok', timestamp: new Date().toISOString() }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
     if (path === '/products' && method === 'GET') {
       const { data: products, error } = await supabase
         .from('products')
