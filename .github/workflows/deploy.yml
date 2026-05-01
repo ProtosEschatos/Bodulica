@@ -21,7 +21,7 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           projectName: bodulica
-          directory: Bodulica
+          directory: bodulica-deploy
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
           buildCommand: ""
           nodeVersion: 18
