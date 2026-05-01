@@ -1,0 +1,10 @@
+name = "bodulica-api"
+version = "1.0.0"
+
+[env]
+# Environment variables will be set in Supabase Dashboard
+# Required: SUPABASE_SERVICE_ROLE_KEY, STRIPE_SECRET_KEY, ADMIN_PASSWORD
+# Optional: STRIPE_WEBHOOK_SECRET, SITE_URL, JWT_SECRET
+
+[build]
+# No build command needed for Deno

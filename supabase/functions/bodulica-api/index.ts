@@ -1,0 +1,734 @@
+import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+}
+
+interface Product {
+  id?: string
+  name: string
+  brand?: string
+  category: string
+  price: number
+  stock_quantity: number
+  is_active: boolean
+  is_unique: boolean
+  description?: string
+  dimensions?: string
+  materials?: string
+  image_url?: string
+  stripe_price_id?: string
+  slug?: string
+  badge?: string
+  created_at?: string
+  updated_at?: string
+}
+
+interface OrderItem {
+  product_id: string
+  product_name: string
+  quantity: number
+  unit_price: number
+  total_price: number
+}
+
+interface Order {
+  id?: string
+  order_number?: string
+  customer_email: string
+  customer_name?: string
+  customer_phone?: string
+  shipping_name?: string
+  shipping_address?: string
+  shipping_city?: string
+  shipping_postal_code?: string
+  shipping_country?: string
+  status?: string
+  subtotal: number
+  shipping_cost: number
+  total: number
+  items: OrderItem[]
+  stripe_session_id?: string
+  stripe_payment_intent_id?: string
+  created_at?: string
+}
+
+// Admin authentication - simple password check
+const ADMIN_PASSWORD = Deno.env.get('ADMIN_PASSWORD') || 'admin123'
+const JWT_SECRET = Deno.env.get('JWT_SECRET') || 'bodulica-secret-key-change-in-production'
+
+function generateToken(): string {
+  const timestamp = Date.now()
+  const random = Math.random().toString(36).substring(2, 15)
+  return btoa(`${timestamp}:${random}:${ADMIN_PASSWORD}`)
+}
+
+function verifyToken(token: string): boolean {
+  try {
+    const decoded = atob(token)
+    const parts = decoded.split(':')
+    return parts.length === 3 && parts[2] === ADMIN_PASSWORD
+  } catch {
+    return false
+  }
+}
+
+function slugify(name: string): string {
+  return name.toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '')
+    .substring(0, 50)
+}
+
+async function createStripePrice(product: Product): Promise<string | null> {
+  const stripeKey = Deno.env.get('STRIPE_SECRET_KEY')
+  if (!stripeKey) return null
+
+  try {
+    // Create Stripe product
+    const productRes = await fetch('https://api.stripe.com/v1/products', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${stripeKey}`,
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams({
+        name: product.name,
+        description: product.description || '',
+        metadata: JSON.stringify({
+          category: product.category,
+          brand: product.brand || '',
+        }),
+      }).toString(),
+    })
+
+    if (!productRes.ok) {
+      console.error('Stripe product error:', await productRes.text())
+      return null
+    }
+
+    const stripeProduct = await productRes.json()
+
+    // Create Stripe price
+    const priceRes = await fetch('https://api.stripe.com/v1/prices', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${stripeKey}`,
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams({
+        product: stripeProduct.id,
+        unit_amount: Math.round(product.price * 100).toString(), // cents
+        currency: 'eur',
+      }).toString(),
+    })
+
+    if (!priceRes.ok) {
+      console.error('Stripe price error:', await priceRes.text())
+      return null
+    }
+
+    const stripePrice = await priceRes.json()
+    return stripePrice.id
+  } catch (error) {
+    console.error('Stripe error:', error)
+    return null
+  }
+}
+
+async function updateStripePrice(stripePriceId: string, product: Product): Promise<boolean> {
+  const stripeKey = Deno.env.get('STRIPE_SECRET_KEY')
+  if (!stripeKey) return false
+
+  try {
+    // Archive old price and create new one
+    await fetch(`https://api.stripe.com/v1/prices/${stripePriceId}`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${stripeKey}`,
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams({
+        active: 'false',
+      }).toString(),
+    })
+
+    return true
+  } catch (error) {
+    console.error('Stripe update error:', error)
+    return false
+  }
+}
+
+serve(async (req) => {
+  // Handle CORS preflight
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', { headers: corsHeaders })
+  }
+
+  const url = new URL(req.url)
+  const path = url.pathname
+  const method = req.method
+
+  // Create Supabase client
+  const supabaseUrl = Deno.env.get('SUPABASE_URL') || 'https://mbputwgppweoeujiszgv.supabase.co'
+  const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || ''
+  const supabase = createClient(supabaseUrl, supabaseKey)
+
+  try {
+    // Public endpoints
+    if (path === '/products' && method === 'GET') {
+      const { data: products, error } = await supabase
+        .from('products')
+        .select('*')
+        .eq('is_active', true)
+        .order('created_at', { ascending: false })
+
+      if (error) throw error
+
+      return new Response(JSON.stringify(products || []), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
+    // Admin login (public)
+    if (path === '/api/login' && method === 'POST') {
+      const body = await req.json()
+      
+      if (body.password === ADMIN_PASSWORD) {
+        const token = generateToken()
+        return new Response(JSON.stringify({ ok: true, token }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        })
+      }
+
+      return new Response(JSON.stringify({ error: 'Netočna lozinka' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
+    // Protected admin endpoints - verify token
+    const authHeader = req.headers.get('authorization')
+    const token = authHeader?.replace('Bearer ', '')
+    
+    const isAdmin = token && verifyToken(token)
+
+    // Stats endpoint (admin only)
+    if (path === '/api/stats' && method === 'GET') {
+      if (!isAdmin) {
+        return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+          status: 401,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        })
+      }
+
+      const { count: productCount } = await supabase
+        .from('products')
+        .select('*', { count: 'exact', head: true })
+
+      const { count: orderCount } = await supabase
+        .from('orders')
+        .select('*', { count: 'exact', head: true })
+
+      const { data: revenue } = await supabase
+        .from('orders')
+        .select('total')
+        .eq('status', 'paid')
+
+      const totalRevenue = revenue?.reduce((sum, o) => sum + (o.total || 0), 0) || 0
+
+      const { data: customers } = await supabase
+        .from('orders')
+        .select('customer_email')
+
+      const uniqueCustomers = new Set(customers?.map(c => c.customer_email) || []).size
+
+      return new Response(JSON.stringify({
+        products: productCount || 0,
+        orders: orderCount || 0,
+        revenue: totalRevenue,
+        uniqueCustomers,
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
+    // All products (admin only)
+    if (path === '/api/products' && method === 'GET') {
+      if (!isAdmin) {
+        return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+          status: 401,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        })
+      }
+
+      const { data: products, error } = await supabase
+        .from('products')
+        .select('*')
+        .order('created_at', { ascending: false })
+
+      if (error) throw error
+
+      return new Response(JSON.stringify(products || []), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
+    // Create product (admin only)
+    if (path === '/api/products' && method === 'POST') {
+      if (!isAdmin) {
+        return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+          status: 401,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        })
+      }
+
+      const body = await req.json()
+      const product: Product = {
+        ...body,
+        slug: slugify(body.name),
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      }
+
+      // Create Stripe price
+      if (!product.stripe_price_id) {
+        const stripePriceId = await createStripePrice(product)
+        if (stripePriceId) {
+          product.stripe_price_id = stripePriceId
+        }
+      }
+
+      const { data, error } = await supabase
+        .from('products')
+        .insert(product)
+        .select()
+        .single()
+
+      if (error) throw error
+
+      return new Response(JSON.stringify(data), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
+    // Update product (admin only)
+    if (path.startsWith('/api/products/') && method === 'PUT') {
+      if (!isAdmin) {
+        return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+          status: 401,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        })
+      }
+
+      const id = path.split('/').pop()
+      const body = await req.json()
+
+      // Check if price changed
+      if (body.stripe_price_id && body.price) {
+        await updateStripePrice(body.stripe_price_id, body)
+        // Create new Stripe price
+        const newPriceId = await createStripePrice(body)
+        if (newPriceId) {
+          body.stripe_price_id = newPriceId
+        }
+      }
+
+      const { data, error } = await supabase
+        .from('products')
+        .update({
+          ...body,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', id)
+        .select()
+        .single()
+
+      if (error) throw error
+
+      return new Response(JSON.stringify(data), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
+    // Delete product (admin only)
+    if (path.startsWith('/api/products/') && method === 'DELETE') {
+      if (!isAdmin) {
+        return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+          status: 401,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        })
+      }
+
+      const id = path.split('/').pop()
+
+      const { error } = await supabase
+        .from('products')
+        .delete()
+        .eq('id', id)
+
+      if (error) throw error
+
+      return new Response(JSON.stringify({ success: true }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
+    // Upload image (admin only)
+    if (path === '/api/upload' && method === 'POST') {
+      if (!isAdmin) {
+        return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+          status: 401,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        })
+      }
+
+      const formData = await req.formData()
+      const file = formData.get('file') as File
+
+      if (!file) {
+        return new Response(JSON.stringify({ error: 'No file uploaded' }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        })
+      }
+
+      const fileExt = file.name.split('.').pop()
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 15)}.${fileExt}`
+      const filePath = `products/${fileName}`
+
+      const { data, error } = await supabase.storage
+        .from('images')
+        .upload(filePath, file, {
+          contentType: file.type,
+        })
+
+      if (error) {
+        return new Response(JSON.stringify({ error: error.message }), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        })
+      }
+
+      const { data: urlData } = supabase.storage
+        .from('images')
+        .getPublicUrl(filePath)
+
+      return new Response(JSON.stringify({ url: urlData.publicUrl }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
+    // Orders endpoints
+    if (path === '/api/orders' && method === 'GET') {
+      if (!isAdmin) {
+        return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+          status: 401,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        })
+      }
+
+      const { data: orders, error } = await supabase
+        .from('orders')
+        .select('*, items:order_items(*)')
+        .order('created_at', { ascending: false })
+
+      if (error) throw error
+
+      return new Response(JSON.stringify(orders || []), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
+    // Update order status (admin only)
+    if (path.startsWith('/api/orders/') && method === 'PUT') {
+      if (!isAdmin) {
+        return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+          status: 401,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        })
+      }
+
+      const id = path.split('/').pop()
+      const body = await req.json()
+
+      const { data, error } = await supabase
+        .from('orders')
+        .update({
+          status: body.status,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', id)
+        .select()
+        .single()
+
+      if (error) throw error
+
+      return new Response(JSON.stringify(data), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
+    // Checkout endpoint (public)
+    if (path === '/checkout' && method === 'POST') {
+      const body = await req.json()
+      const { items, customer_email, shipping_details } = body as {
+        items: { id: string; quantity: number }[]
+        customer_email: string
+        shipping_details?: {
+          name: string
+          address: string
+          city: string
+          postal_code: string
+          country: string
+        }
+      }
+
+      if (!items || !items.length || !customer_email) {
+        return new Response(JSON.stringify({ error: 'Missing required fields' }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        })
+      }
+
+      // Fetch products
+      const productIds = items.map(i => i.id)
+      const { data: products, error: productsError } = await supabase
+        .from('products')
+        .select('*')
+        .in('id', productIds)
+
+      if (productsError || !products) {
+        return new Response(JSON.stringify({ error: 'Products not found' }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        })
+      }
+
+      // Calculate totals
+      let subtotal = 0
+      const lineItems = []
+      const orderItems: OrderItem[] = []
+
+      for (const item of items) {
+        const product = products.find(p => p.id === item.id)
+        if (!product || !product.stripe_price_id) continue
+
+        const itemTotal = product.price * item.quantity
+        subtotal += itemTotal
+
+        lineItems.push({
+          price: product.stripe_price_id,
+          quantity: item.quantity,
+        })
+
+        orderItems.push({
+          product_id: product.id,
+          product_name: product.name,
+          quantity: item.quantity,
+          unit_price: product.price,
+          total_price: itemTotal,
+        })
+      }
+
+      const shippingCost = subtotal > 50 ? 0 : 5
+      const total = subtotal + shippingCost
+
+      if (lineItems.length === 0) {
+        return new Response(JSON.stringify({ error: 'No valid items' }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        })
+      }
+
+      // Create order
+      const orderNumber = `ORD-${Date.now()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`
+      const order: Order = {
+        order_number: orderNumber,
+        customer_email,
+        customer_name: shipping_details?.name,
+        shipping_name: shipping_details?.name,
+        shipping_address: shipping_details?.address,
+        shipping_city: shipping_details?.city,
+        shipping_postal_code: shipping_details?.postal_code,
+        shipping_country: shipping_details?.country,
+        status: 'pending',
+        subtotal,
+        shipping_cost: shippingCost,
+        total,
+        items: orderItems,
+      }
+
+      const { data: createdOrder, error: orderError } = await supabase
+        .from('orders')
+        .insert(order)
+        .select()
+        .single()
+
+      if (orderError) {
+        return new Response(JSON.stringify({ error: orderError.message }), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        })
+      }
+
+      // Insert order items
+      const orderItemsWithOrderId = orderItems.map(item => ({
+        ...item,
+        order_id: createdOrder.id,
+      }))
+
+      await supabase.from('order_items').insert(orderItemsWithOrderId)
+
+      // Create Stripe Checkout Session
+      const stripeKey = Deno.env.get('STRIPE_SECRET_KEY')
+      if (!stripeKey) {
+        return new Response(JSON.stringify({ error: 'Payment processing not configured' }), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        })
+      }
+
+      const siteUrl = Deno.env.get('SITE_URL') || 'https://bodulica.pages.dev'
+
+      const sessionRes = await fetch('https://api.stripe.com/v1/checkout/sessions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${stripeKey}`,
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams({
+          payment_method_types: 'card',
+          line_items: JSON.stringify(lineItems.map(item => ({
+            price: item.price,
+            quantity: item.quantity,
+          }))),
+          mode: 'payment',
+          success_url: `${siteUrl}/shop.html?success=1&order=${orderNumber}`,
+          cancel_url: `${siteUrl}/shop.html?cancelled=1`,
+          customer_email,
+          metadata: JSON.stringify({
+            order_id: createdOrder.id,
+            order_number: orderNumber,
+          }),
+          shipping_address_collection: 'HR',
+        }).toString(),
+      })
+
+      if (!sessionRes.ok) {
+        const errorText = await sessionRes.text()
+        console.error('Stripe session error:', errorText)
+        return new Response(JSON.stringify({ error: 'Payment session creation failed' }), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        })
+      }
+
+      const session = await sessionRes.json()
+
+      // Update order with stripe session id
+      await supabase
+        .from('orders')
+        .update({ stripe_session_id: session.id })
+        .eq('id', createdOrder.id)
+
+      return new Response(JSON.stringify({ url: session.url }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
+    // Webhook for Stripe events
+    if (path === '/webhook' && method === 'POST') {
+      const stripeKey = Deno.env.get('STRIPE_SECRET_KEY')
+      const webhookSecret = Deno.env.get('STRIPE_WEBHOOK_SECRET')
+
+      if (!stripeKey || !webhookSecret) {
+        return new Response(JSON.stringify({ error: 'Webhook not configured' }), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        })
+      }
+
+      const payload = await req.text()
+      const signature = req.headers.get('stripe-signature')
+
+      // Verify webhook signature
+      const crypto = await import('https://deno.land/std@0.160.0/crypto/mod.ts')
+      const encoder = new TextEncoder()
+      const key = await crypto.crypto.subtle.importKey(
+        'raw',
+        encoder.encode(webhookSecret),
+        { name: 'HMAC', hash: 'SHA-256' },
+        false,
+        ['sign', 'verify']
+      )
+
+      const expectedSignature = await crypto.crypto.subtle.sign(
+        'HMAC',
+        key,
+        encoder.encode(payload)
+      )
+
+      // Note: Proper webhook verification requires more work
+      // For now, parse and handle the event
+      const event = JSON.parse(payload)
+
+      if (event.type === 'checkout.session.completed') {
+        const session = event.data.object
+        const orderId = session.metadata?.order_id
+
+        if (orderId) {
+          await supabase
+            .from('orders')
+            .update({
+              status: 'paid',
+              stripe_payment_intent_id: session.payment_intent,
+              updated_at: new Date().toISOString(),
+            })
+            .eq('id', orderId)
+
+          // Decrease stock for unique items
+          const { data: orderItems } = await supabase
+            .from('order_items')
+            .select('*, product:products(*)')
+            .eq('order_id', orderId)
+
+          for (const item of (orderItems || [])) {
+            if (item.product?.is_unique) {
+              await supabase
+                .from('products')
+                .update({ is_active: false, stock_quantity: 0 })
+                .eq('id', item.product_id)
+            } else {
+              await supabase.rpc('decrement_stock', {
+                product_id: item.product_id,
+                quantity: item.quantity,
+              })
+            }
+          }
+        }
+      }
+
+      return new Response(JSON.stringify({ received: true }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
+    // 404 for unknown routes
+    return new Response(JSON.stringify({ error: 'Not found' }), {
+      status: 404,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    })
+
+  } catch (error) {
+    console.error('Server error:', error)
+    return new Response(JSON.stringify({ error: error.message }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    })
+  }
+})

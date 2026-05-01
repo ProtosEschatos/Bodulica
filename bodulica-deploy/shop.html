@@ -159,7 +159,7 @@ function renderProducts(filter='all'){
   grid.innerHTML = filtered.map(p=>`
     <div class="pc" data-cat="${p.category}" onclick="addToCart('${p.id}')">
       <div class="pw">
-        <img class="pi" src="${p.image || 'https://via.placeholder.com/400'}" alt="${p.name}" loading="lazy">
+        <img class="pi" src="${p.image_url || p.image || 'https://via.placeholder.com/400'}" alt="${p.name}" loading="lazy">
       </div>
       <div class="pb">
         <div class="pt">${p.category}</div>
@@ -167,7 +167,7 @@ function renderProducts(filter='all'){
         <div class="pr">${p.brand}</div>
         <div class="pf">
           <span class="pp">${p.price.toFixed(2)}<span class="eur"> EUR</span></span>
-          ${p.badge?`<span class="bd bg-${p.badge}">${p.badge}</span>`:''}
+          ${p.badge?`<span class="bd bg-${p.badge}">${p.badge}</span>`:(p.is_unique?'<span class="bd bg-award">Unikat</span>':'')}
         </div>
       </div>
       <button class="qb">+</button>
