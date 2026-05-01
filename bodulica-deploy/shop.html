@@ -113,6 +113,7 @@ body::before{content:'';position:fixed;inset:0;z-index:9999;pointer-events:none;
 <script>
 // Supabase config
 const SUPABASE_URL = 'https://mbputwgppweoeujiszgv.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_IsmZj5XXMUwZGk22YPgiLA_637vvXzQ';
 const API_URL = `${SUPABASE_URL}/functions/v1/bodulica-api`;
 
 let products = [];
@@ -121,7 +122,12 @@ let cart = JSON.parse(localStorage.getItem('bodulicaCart')) || [];
 // Fetch products from Supabase
 async function fetchProducts() {
   try {
-    const response = await fetch(`${API_URL}/products`);
+    const response = await fetch(`${API_URL}/products`, {
+      headers: {
+        'Authorization': `Bearer ${SUPABASE_KEY}`,
+        'Content-Type': 'application/json'
+      }
+    });
     if(response.ok) {
       products = await response.json();
       renderProducts();
