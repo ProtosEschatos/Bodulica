@@ -1,6 +1,5 @@
-// @ts-nocheck
 // Deno Edge Function - runs in Supabase Edge Runtime
-import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
+import { serve } from 'https://deno.land/std@0.224.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const corsHeaders = {
@@ -59,8 +58,16 @@ interface Order {
 }
 
 // Admin authentication - simple password check
-const ADMIN_PASSWORD = Deno.env.get('ADMIN_PASSWORD') || 'admin123'
-const JWT_SECRET = Deno.env.get('JWT_SECRET') || 'bodulica-secret-key-change-in-production'
+const ADMIN_PASSWORD = Deno.env.get('ADMIN_PASSWORD')
+const JWT_SECRET = Deno.env.get('JWT_SECRET')
+
+if (!ADMIN_PASSWORD) {
+  throw new Error('ADMIN_PASSWORD environment variable is required')
+}
+
+if (!JWT_SECRET) {
+  console.warn('WARNING: JWT_SECRET not set - required for production use')
+}
 
 function generateToken(): string {
   const timestamp = Date.now()
@@ -517,7 +524,7 @@ serve(async (req) => {
         })
       }
 
-      // Calculate totals
+      // Calculate totals and validate stock
       let subtotal = 0
       const lineItems = []
       const orderItems: OrderItem[] = []
@@ -525,6 +532,16 @@ serve(async (req) => {
       for (const item of items) {
         const product = products.find(p => p.id === item.id)
         if (!product || !product.stripe_price_id) continue
+
+        // Validate stock quantity
+        if (product.stock_quantity < item.quantity) {
+          return new Response(JSON.stringify({ 
+            error: `Nema dovoljno zaliha za: ${product.name}. Dostupno: ${product.stock_quantity}` 
+          }), {
+            status: 400,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          })
+        }
 
         const itemTotal = product.price * item.quantity
         subtotal += itemTotal
@@ -664,10 +681,39 @@ serve(async (req) => {
       const payload = await req.text()
       const signature = req.headers.get('stripe-signature')
 
-      // Verify webhook signature
-      const crypto = await import('https://deno.land/std@0.160.0/crypto/mod.ts')
+      if (!signature) {
+        return new Response(JSON.stringify({ error: 'Missing stripe-signature header' }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        })
+      }
+
+      // Verify webhook signature using Stripe's expected format
+      // Stripe signs with: t={timestamp},v1={signature}
+      const timestamp = signature.split(',').find(s => s.startsWith('t='))?.split('=')[1]
+      const signedPayload = signature.split(',').find(s => s.startsWith('v1='))?.split('=')[1]
+
+      if (!timestamp || !signedPayload) {
+        return new Response(JSON.stringify({ error: 'Invalid signature format' }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        })
+      }
+
+      // Validate timestamp (must be within 5 minutes)
+      const now = Math.floor(Date.now() / 1000)
+      const timestampInt = parseInt(timestamp, 10)
+      if (Math.abs(now - timestampInt) > 300) {
+        console.error('Webhook timestamp too old:', timestampInt, 'current:', now)
+        return new Response(JSON.stringify({ error: 'Timestamp outside acceptable range' }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        })
+      }
+
+      // Verify the signature matches using global crypto API
       const encoder = new TextEncoder()
-      const key = await crypto.crypto.subtle.importKey(
+      const keyData = await crypto.subtle.importKey(
         'raw',
         encoder.encode(webhookSecret),
         { name: 'HMAC', hash: 'SHA-256' },
@@ -675,15 +721,35 @@ serve(async (req) => {
         ['sign', 'verify']
       )
 
-      const expectedSignature = await crypto.crypto.subtle.sign(
+      const expectedSignature = await crypto.subtle.sign(
         'HMAC',
-        key,
-        encoder.encode(payload)
+        keyData,
+        encoder.encode(`${timestamp}.${payload}`)
       )
 
-      // Note: Proper webhook verification requires more work
-      // For now, parse and handle the event
-      const event = JSON.parse(payload)
+      const expectedHex = Array.from(new Uint8Array(expectedSignature))
+        .map(b => b.toString(16).padStart(2, '0'))
+        .join('')
+
+      if (expectedHex !== signedPayload) {
+        console.error('Webhook signature verification failed')
+        return new Response(JSON.stringify({ error: 'Invalid signature' }), {
+          status: 401,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        })
+      }
+
+      // Parse and handle the event
+      let event
+      try {
+        event = JSON.parse(payload)
+      } catch (parseError) {
+        console.error('Failed to parse webhook payload:', parseError)
+        return new Response(JSON.stringify({ error: 'Invalid payload' }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        })
+      }
 
       if (event.type === 'checkout.session.completed') {
         const session = event.data.object
@@ -700,22 +766,34 @@ serve(async (req) => {
             .eq('id', orderId)
 
           // Decrease stock for unique items
-          const { data: orderItems } = await supabase
+          const { data: orderItems, error: itemsError } = await supabase
             .from('order_items')
             .select('*, product:products(*)')
             .eq('order_id', orderId)
 
-          for (const item of (orderItems || [])) {
-            if (item.product?.is_unique) {
-              await supabase
-                .from('products')
-                .update({ is_active: false, stock_quantity: 0 })
-                .eq('id', item.product_id)
-            } else {
-              await supabase.rpc('decrement_stock', {
-                product_id: item.product_id,
-                quantity: item.quantity,
-              })
+          if (itemsError) {
+            console.error('Error fetching order items:', itemsError)
+          } else {
+            for (const item of (orderItems || [])) {
+              if (item.product?.is_unique) {
+                const { error: updateError } = await supabase
+                  .from('products')
+                  .update({ is_active: false, stock_quantity: 0 })
+                  .eq('id', item.product_id)
+                
+                if (updateError) {
+                  console.error('Error updating unique product:', updateError)
+                }
+              } else {
+                const { error: rpcError } = await supabase.rpc('decrement_stock', {
+                  product_id: item.product_id,
+                  quantity: item.quantity,
+                })
+                
+                if (rpcError) {
+                  console.error('Error decrementing stock:', rpcError)
+                }
+              }
             }
           }
         }
