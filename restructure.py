@@ -17,7 +17,7 @@ css_content = style_match.group(1).strip() if style_match else ''
 
 # Extract JS between <script> tags
 script_matches = re.findall(r'<script>(.*?)</script>', html_content, re.DOTALL)
-javascript_content = '\n\n'.join(script_matches) if script_matches else ''
+javascript_content = '\n\n'.join(script_matches) if script_matches else ''  # noqa: N806
 
 # Create CSS file
 src_dir = Path('/home/sovereign/linux/Bodulica/src')
