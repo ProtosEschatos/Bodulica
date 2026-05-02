@@ -1,0 +1,66 @@
+{
+  "tools": {
+    "stripe_cli": {
+      "enabled": true,
+      "version": "1.21.0",
+      "commands": {
+        "login": "stripe login",
+        "listen": "stripe listen --forward-to localhost:3000/api/webhooks/stripe",
+        "trigger": "stripe trigger payment_intent.succeeded",
+        "dashboard": "stripe open"
+      },
+      "webhook_endpoints": {
+        "payment_success": "/api/webhooks/stripe",
+        "subscription_created": "/api/webhooks/stripe/subscription"
+      }
+    },
+    "ollama": {
+      "enabled": true,
+      "host": "http://localhost:11434",
+      "models": {
+        "primary": "qwen3:8b",
+        "fallback": "qwen2.5:7b",
+        "quick_tasks": "deepseek-r1:1.5b"
+      },
+      "auto_start": true
+    },
+    "supabase_cli": {
+      "enabled": true,
+      "version": "2.84.2",
+      "commands": {
+        "status": "supabase status",
+        "db_reset": "supabase db reset",
+        "functions_deploy": "supabase functions deploy",
+        "types": "supabase gen types typescript --project-id bodulica > lib/database.types.ts"
+      }
+    },
+    "nextjs": {
+      "enabled": true,
+      "version": "14.2.0",
+      "scripts": {
+        "dev": "npm run dev",
+        "build": "npm run build",
+        "start": "npm run start"
+      }
+    },
+    "cloudflare": {
+      "enabled": true,
+      "wrangler_version": "3.50.0",
+      "pages": {
+        "project": "bodulicashop",
+        "branch": "main"
+      }
+    }
+  },
+  "workflows": {
+    "dev_server": {
+      "start": ["stripe listen --forward-to localhost:3000/api/webhooks/stripe", "npm run dev"],
+      "stop": ["pkill -f stripe", "pkill -f next"]
+    },
+    "deploy": {
+      "local_build": ["npm run build", "npm run test"],
+      "push_deploy": ["git add -A", "git commit -m 'Deploy update'", "git push origin main"],
+      "supabase_sync": ["supabase db push", "supabase functions deploy"]
+    }
+  }
+}
