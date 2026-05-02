@@ -1,58 +1,9 @@
 {
   "version": "1.0.0",
-  "name": "Celestial Oracle Gateway",
-  "description": "OpenClaw gateway for astrology platform",
-  "default_skill": "astrology-core",
+  "name": "Bodulica Web Dev Agent",
+  "description": "OpenClaw agent for web development via Windsurf Cascade",
+  "default_skill": "web-development",
   "skills": {
-    "astrology-core": {
-      "enabled": true,
-      "priority": "high",
-      "path": "/home/sovereign/CascadeProjects/Celestial-Oracle/openclaw_integration/skills/astrology-core",
-      "api_key": "${ASTROLOGY_API_KEY}",
-      "rate_limit": {
-        "requests_per_minute": 100,
-        "requests_per_hour": 1000
-      },
-      "cache_ttl": 300,
-      "timeout": 30
-    },
-    "monitoring-health": {
-      "enabled": true,
-      "priority": "critical",
-      "path": "/home/sovereign/CascadeProjects/Celestial-Oracle/openclaw_integration/skills/monitoring-health",
-      "schedule": {
-        "health_check": "0 */6 * * *",
-        "database_maintenance": "0 0 * * *",
-        "daily_report": "0 0 * * *"
-      }
-    },
-    "notifications-bot": {
-      "enabled": true,
-      "priority": "medium",
-      "path": "/home/sovereign/CascadeProjects/Celestial-Oracle/openclaw_integration/skills/notifications-bot",
-      "schedule": {
-        "daily_horoscope_blast": "0 8 * * *"
-      }
-    },
-    "content-generation": {
-      "enabled": true,
-      "priority": "medium",
-      "path": "/home/sovereign/CascadeProjects/Celestial-Oracle/openclaw_integration/skills/content-generation",
-      "ollama": {
-        "host": "http://localhost:11434",
-        "model": "deepseek-r1:1.5b",
-        "timeout": 60
-      },
-      "schedule": {
-        "generate_daily_horoscopes": "0 6 * * *",
-        "batch_generate_content": "0 6 * * *"
-      }
-    },
-    "payment-stripe": {
-      "enabled": true,
-      "priority": "high",
-      "path": "/home/sovereign/CascadeProjects/Celestial-Oracle/openclaw_integration/skills/payment-stripe"
-    },
     "web-development": {
       "enabled": true,
       "priority": "critical",
@@ -64,15 +15,19 @@
       },
       "projects": ["bodulica.shop"],
       "ai_assistants": {
-        "deepseek": {
+        "deepseek_api": {
           "enabled": true,
-          "provider": "deepseek_api",
           "api_key": "${DEEPSEEK_API_KEY}",
           "model": "deepseek-chat",
           "base_url": "https://api.deepseek.com/v1",
           "free_tier": {"enabled": true, "daily_limit_tokens": 1000000}
         },
-        "ollama": {"enabled": true, "model": "deepseek-r1:1.5b"}
+        "ollama_local": {
+          "enabled": true,
+          "host": "http://localhost:11434",
+          "model": "deepseek-r1:1.5b",
+          "fallback": true
+        }
       },
       "environment": {
         "primary_ide": "windsurf",
@@ -83,24 +38,12 @@
     }
   },
   "endpoints": {
-    "api_base": "${ASTROLOGY_API_URL}",
-    "webhook_base": "${ASTROLOGY_API_URL}/api/webhooks",
-    "health": "${ASTROLOGY_API_URL}/health"
-  },
-  "notifications": {
-    "telegram": {
-      "enabled": true,
-      "bot_token": "${TELEGRAM_BOT_TOKEN}",
-      "admin_chat_id": "${ADMIN_CHAT_ID}"
-    },
-    "discord": {
-      "enabled": false
-    }
+    "ollama": "http://localhost:11434"
   },
   "logging": {
     "level": "info",
-    "file": "/var/log/openclaw/agent.log",
+    "file": "/tmp/openclaw.log",
     "max_size": "10MB",
-    "max_files": 5
+    "max_files": 3
   }
 }
