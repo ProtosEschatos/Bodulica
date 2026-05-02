@@ -1,34 +1,29 @@
-# Environment files - NEVER commit these!
-.env
-.env.local
-.env.*.local
-
+```
 # Dependencies
 node_modules/
 
-# Build outputs
-build/
-dist/
-out/
-*.tsbuildinfo
+# Environment
+.env
+.env.local
+.env.*
 
-# IDE
+# Logs and temp files
+*.log
+*.tmp
+
+# Editors
 .vscode/
 .idea/
-*.swp
-*.swo
 
-# OS files
-.DS_Store
-Thumbs.db
-
-# Logs
-*.log
-npm-debug.log*
-
-# Supabase
-.supabase/
-supabase/.temp/
-
-# OpenMemory - IDE/Assistant specific rules
-.windsurf/rules/openmemory.md
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+venv/
+.venv/
+.env
+.env.local
+.env.*
+```
