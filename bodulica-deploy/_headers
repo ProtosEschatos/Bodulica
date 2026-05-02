@@ -1,13 +1,7 @@
 /*
   X-Frame-Options: DENY
   X-Content-Type-Options: nosniff
-  Referrer-Options: strict-origin-when-cross-origin
+  Referrer-Policy: strict-origin-when-cross-origin
   X-XSS-Protection: 1; mode=block
   Permissions-Policy: camera=(), microphone=(), geolocation=()
-
-# Block unwanted AI crawlers
-robots.txt
   X-Robots-Tag: noimageai, noai
-
-.well-known/security.txt
-  Content-Type: text/plain; charset=utf-8
