@@ -66,7 +66,7 @@ if (!ADMIN_PASSWORD) {
 }
 
 if (!JWT_SECRET) {
-  console.warn('WARNING: JWT_SECRET not set, using fallback (not recommended for production)')
+  console.warn('WARNING: JWT_SECRET not set - required for production use')
 }
 
 function generateToken(): string {
@@ -524,7 +524,7 @@ serve(async (req) => {
         })
       }
 
-      // Calculate totals
+      // Calculate totals and validate stock
       let subtotal = 0
       const lineItems = []
       const orderItems: OrderItem[] = []
@@ -532,6 +532,16 @@ serve(async (req) => {
       for (const item of items) {
         const product = products.find(p => p.id === item.id)
         if (!product || !product.stripe_price_id) continue
+
+        // Validate stock quantity
+        if (product.stock_quantity < item.quantity) {
+          return new Response(JSON.stringify({ 
+            error: `Nema dovoljno zaliha za: ${product.name}. Dostupno: ${product.stock_quantity}` 
+          }), {
+            status: 400,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          })
+        }
 
         const itemTotal = product.price * item.quantity
         subtotal += itemTotal
@@ -690,10 +700,20 @@ serve(async (req) => {
         })
       }
 
-      // Verify the signature matches
-      const cryptoModule = await import('https://deno.land/std@0.224.0/crypto/mod.ts')
+      // Validate timestamp (must be within 5 minutes)
+      const now = Math.floor(Date.now() / 1000)
+      const timestampInt = parseInt(timestamp, 10)
+      if (Math.abs(now - timestampInt) > 300) {
+        console.error('Webhook timestamp too old:', timestampInt, 'current:', now)
+        return new Response(JSON.stringify({ error: 'Timestamp outside acceptable range' }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        })
+      }
+
+      // Verify the signature matches using global crypto API
       const encoder = new TextEncoder()
-      const keyData = await cryptoModule.crypto.subtle.importKey(
+      const keyData = await crypto.subtle.importKey(
         'raw',
         encoder.encode(webhookSecret),
         { name: 'HMAC', hash: 'SHA-256' },
@@ -701,7 +721,7 @@ serve(async (req) => {
         ['sign', 'verify']
       )
 
-      const expectedSignature = await cryptoModule.crypto.subtle.sign(
+      const expectedSignature = await crypto.subtle.sign(
         'HMAC',
         keyData,
         encoder.encode(`${timestamp}.${payload}`)
