@@ -9,7 +9,7 @@ from pathlib import Path
 
 # Read the HTML file
 html_path = Path('/home/sovereign/linux/Bodulica/bodulica-deploy/index.html')
-html_content = html_path.read_text()
+html_content = html_path.read_text(encoding='utf-8')
 
 # Extract CSS between <style> tags
 style_match = re.search(r'<style>(.*?)</style>', html_content, re.DOTALL)
@@ -17,7 +17,7 @@ css_content = style_match.group(1).strip() if style_match else ''
 
 # Extract JS between <script> tags
 script_matches = re.findall(r'<script>(.*?)</script>', html_content, re.DOTALL)
-js_content = '\n\n'.join(script_matches) if script_matches else ''
+javascript_content = '\n\n'.join(script_matches) if script_matches else ''
 
 # Create CSS file
 src_dir = Path('/home/sovereign/linux/Bodulica/src')
@@ -28,7 +28,7 @@ with open(src_dir / 'styles.css', 'w', encoding='utf-8') as f:
 
 # Create JS file
 with open(src_dir / 'app.js', 'w', encoding='utf-8') as f:
-    f.write(js_content)
+    f.write(javascript_content)
 
 # Clean HTML - remove inline styles and scripts
 # Keep only the style tag with link replacement comment
@@ -45,5 +45,5 @@ with open(src_dir / 'index.html', 'w', encoding='utf-8') as f:
 
 print("✅ Restrukturiranje zavrseno:")
 print(f"   - CSS: src/styles.css ({len(css_content)} chars)")
-print(f"   - JS: src/app.js ({len(js_content)} chars)")
+print(f"   - JS: src/app.js ({len(javascript_content)} chars)")
 print(f"   - HTML: src/index.html ({len(clean_html)} chars)")

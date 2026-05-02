@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>Bodulica — Premium Butiga · Betina, Murter</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Sora:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header class="hd">
+        <div class="hd-in">
+            <div class="lg">Bodulica</div>
+            <nav class="hn">
+                <a href="#" data-f="all">Sve</a>
+                <a href="#" data-f="moda">Moda</a>
+                <a href="#" data-f="delicije">Delicije</a>
+                <a href="#" data-f="kozmetika">Kozmetika</a>
+                <a href="#" data-f="rucni-rad">Ručni rad</a>
+                <a href="#" data-f="art">Art</a>
+                <a href="#" data-f="djeca">Djeca</a>
+                <a href="#kontakt">Kontakt</a>
+                <button class="cb" id="cartToggle" name="cartToggle">Košarica <span class="cc" id="cC">0</span></button>
+            </nav>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="hero-ov"></div>
+        <div class="orb2"></div>
+        <div class="orb3"></div>
+        <div class="hero-c">
+            <div class="ov">Betina · Otok Murter · Est. 2020</div>
+            <h1>Bodulica</h1>
+            <p>Premium butiga s autentičnim dalmatinskim proizvodima</p>
+        </div>
+        <div class="hero-sc">
+            <div class="ln"></div>
+            <span>Scroll</span>
+        </div>
+    </section>
+
+    <div class="fl" id="fl">
+        <button class="fb ac" id="filter-all" name="filter-all" data-c="all">Sve (41)</button>
+        <button class="fb" id="filter-moda" name="filter-moda" data-c="moda">Moda (2)</button>
+        <button class="fb" id="filter-delicije" name="filter-delicije" data-c="delicije">Delicije (4)</button>
+        <button class="fb" id="filter-kozmetika" name="filter-kozmetika" data-c="kozmetika">Kozmetika (19)</button>
+        <button class="fb" id="filter-rucni-rad" name="filter-rucni-rad" data-c="rucni-rad">Ručni rad (7)</button>
+        <button class="fb" id="filter-art" name="filter-art" data-c="art">Art (7)</button>
+        <button class="fb" id="filter-djeca" name="filter-djeca" data-c="djeca">Djeca (2)</button>
+    </div>
+
+    <div class="pg" id="pg">
+        <!-- Products will be loaded here -->
+    </div>
+
+    <div class="mb" id="modal">
+        <div class="md">
+            <button class="mx" id="modalClose" name="modalClose" onclick="closeModal()">✕</button>
+            <div class="miw">
+                <div class="mim">
+                    <div style="font-size:3rem;color:var(--t2);opacity:0.3">📷</div>
+                </div>
+            </div>
+            <div class="mnf">
+                <div class="mc" id="modalCat">KATEGORIJA</div>
+                <div class="mn" id="modalName">Naziv proizvoda</div>
+                <div class="mbd" id="modalDesc">Opis</div>
+                <div class="mds" id="modalDetails">Detalji</div>
+                <div class="mp" id="modalPrice">0 EUR</div>
+                <div style="display:flex;gap:.4rem;margin-top:.8rem">
+                    <button class="bb" id="addToCartBtn" name="addToCartBtn" onclick="addToCart()">Dodaj u košaricu</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="co" id="cartOverlay" onclick="toggleCart()"></div>
+    <div class="cd" id="cart">
+        <div class="ch">
+            <h3>Košarica</h3>
+            <button class="mx" id="cartClose" name="cartClose" onclick="toggleCart()">✕</button>
+        </div>
+        <div class="ci" id="cartItems">
+            <div class="ce">Košarica je prazna</div>
+        </div>
+        <div class="cf">
+            <div class="ctt">
+                <span class="ctl">Ukupno</span>
+                <span class="ctv" id="cartTotal">0 EUR</span>
+            </div>
+            <button class="ck" id="checkoutBtn" name="checkoutBtn" onclick="checkout()">Naruči</button>
+        </div>
+    </div>
+
+    <button class="btt" id="backToTop" name="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Na vrh">↑</button>
+
+    <footer class="ft">
+        <div class="ftb">Bodulica</div>
+        <div class="ftq">"Premium dalmatinski proizvodi"</div>
+        <div class="ftc">© 2024 Bodulica · Betina, Murter · Sva prava pridržana</div>
+    </footer>
+
+    <script src="app.js"></script>
+        <script src="shop-api.js"></script>
+</body>
+</html>
