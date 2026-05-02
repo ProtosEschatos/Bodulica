@@ -63,20 +63,15 @@ INSERT INTO storage.buckets (id, name, public)
 VALUES ('images', 'images', true)
 ON CONFLICT (id) DO NOTHING;
 
--- Set up storage policy to allow public read
+-- Storage policies (idempotent)
 DROP POLICY IF EXISTS "Public Access" ON storage.objects;
 CREATE POLICY "Public Access"
-ON storage.objects
-FOR SELECT
-TO public
+ON storage.objects FOR SELECT TO public
 USING (bucket_id = 'images');
 
--- Set up storage policy to allow authenticated upload
 DROP POLICY IF EXISTS "Authenticated Upload" ON storage.objects;
 CREATE POLICY "Authenticated Upload"
-ON storage.objects
-FOR INSERT
-TO authenticated
+ON storage.objects FOR INSERT TO authenticated
 WITH CHECK (bucket_id = 'images');
 
 -- Create function to update updated_at
@@ -88,11 +83,13 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- Create triggers
+-- Create triggers (idempotent)
+DROP TRIGGER IF EXISTS update_products_updated_at ON products;
 CREATE TRIGGER update_products_updated_at
     BEFORE UPDATE ON products
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_orders_updated_at ON orders;
 CREATE TRIGGER update_orders_updated_at
     BEFORE UPDATE ON orders
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
@@ -120,7 +117,7 @@ ALTER TABLE products ENABLE ROW LEVEL SECURITY;
 ALTER TABLE orders ENABLE ROW LEVEL SECURITY;
 ALTER TABLE order_items ENABLE ROW LEVEL SECURITY;
 
--- Create policies for products (public read, admin write)
+-- Policies for products (idempotent)
 DROP POLICY IF EXISTS "Products are viewable by everyone" ON products;
 CREATE POLICY "Products are viewable by everyone"
 ON products FOR SELECT TO public USING (is_active = true);
@@ -129,7 +126,7 @@ DROP POLICY IF EXISTS "Products are manageable by authenticated users" ON produc
 CREATE POLICY "Products are manageable by authenticated users"
 ON products FOR ALL TO authenticated USING (true) WITH CHECK (true);
 
--- Create policies for orders
+-- Policies for orders (idempotent)
 DROP POLICY IF EXISTS "Orders are viewable by admins" ON orders;
 CREATE POLICY "Orders are viewable by admins"
 ON orders FOR SELECT TO authenticated USING (true);
@@ -138,7 +135,7 @@ DROP POLICY IF EXISTS "Orders can be created by public" ON orders;
 CREATE POLICY "Orders can be created by public"
 ON orders FOR INSERT TO public WITH CHECK (true);
 
--- Create policies for order items
+-- Policies for order items (idempotent)
 DROP POLICY IF EXISTS "Order items are viewable by admins" ON order_items;
 CREATE POLICY "Order items are viewable by admins"
 ON order_items FOR SELECT TO authenticated USING (true);
