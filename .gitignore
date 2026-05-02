@@ -29,3 +29,6 @@ npm-debug.log*
 # Supabase
 .supabase/
 supabase/.temp/
+
+# OpenMemory - IDE/Assistant specific rules
+.windsurf/rules/openmemory.md
