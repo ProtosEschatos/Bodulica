@@ -7,7 +7,7 @@
     "web-development": {
       "enabled": true,
       "priority": "critical",
-      "path": "/home/sovereign/linux/Bodulica/openclaw_integration/skills/web_development",
+            "path": "./skills/web_development",
       "schedule": {
         "health_check": "*/5 * * * *",
         "auto_fix": "0 */1 * * *",
