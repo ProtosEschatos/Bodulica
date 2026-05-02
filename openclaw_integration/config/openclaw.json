@@ -53,17 +53,6 @@
       "priority": "high",
       "path": "/home/sovereign/CascadeProjects/Celestial-Oracle/openclaw_integration/skills/payment-stripe"
     },
-    "claude-code-assistant": {
-      "enabled": true,
-      "priority": "high",
-      "path": "/home/sovereign/CascadeProjects/Celestial-Oracle/openclaw_integration/skills/claude-ai",
-      "api_key": "${CLAUDE_API_KEY}",
-      "schedule": {
-        "code_review": "0 2 * * *",
-        "log_analysis": "0 */4 * * *",
-        "system_optimization": "0 3 * * 0"
-      }
-    },
     "web-development": {
       "enabled": true,
       "priority": "critical",
@@ -75,8 +64,21 @@
       },
       "projects": ["bodulica.shop"],
       "ai_assistants": {
-        "ollama": {"enabled": true, "model": "deepseek-r1:1.5b"},
-        "claude": {"enabled": true}
+        "deepseek": {
+          "enabled": true,
+          "provider": "deepseek_api",
+          "api_key": "${DEEPSEEK_API_KEY}",
+          "model": "deepseek-chat",
+          "base_url": "https://api.deepseek.com/v1",
+          "free_tier": {"enabled": true, "daily_limit_tokens": 1000000}
+        },
+        "ollama": {"enabled": true, "model": "deepseek-r1:1.5b"}
+      },
+      "environment": {
+        "primary_ide": "windsurf",
+        "agent": "cascade",
+        "platforms": ["supabase", "cloudflare", "github"],
+        "workflow": "cascade_agent_orchestrated"
       }
     }
   },
