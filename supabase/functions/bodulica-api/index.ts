@@ -36,6 +36,12 @@ interface OrderItem {
   total_price: number
 }
 
+interface CheckoutItem {
+  product_id: string
+  quantity: number
+  unit_price?: number
+}
+
 interface Order {
   id?: string
   order_number?: string
@@ -517,7 +523,7 @@ serve(async (req) => {
     if (path === '/checkout' && method === 'POST') {
       const body = await req.json()
       const { items, customer_email, shipping_details } = body as {
-        items: { id: string; quantity: number }[]
+        items: CheckoutItem[]
         customer_email: string
         shipping_details?: {
           name: string
@@ -555,7 +561,7 @@ serve(async (req) => {
       const orderItems: OrderItem[] = []
 
       for (const item of items) {
-        const product = products.find(p => p.id === item.id)
+        const product = products.find(p => p.id === item.product_id)
         if (!product || !product.stripe_price_id) continue
 
         // Validate stock quantity
