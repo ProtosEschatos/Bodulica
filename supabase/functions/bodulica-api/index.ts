@@ -600,9 +600,9 @@ serve(async (req) => {
         })
       }
 
-      // Create order
+      // Create order object without items (they go to order_items table)
       const orderNumber = `ORD-${Date.now()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`
-      const order: Order = {
+      const orderData = {
         order_number: orderNumber,
         customer_email,
         customer_name: shipping_details?.name,
@@ -615,12 +615,11 @@ serve(async (req) => {
         subtotal,
         shipping_cost: shippingCost,
         total,
-        items: orderItems,
       }
 
       const { data: createdOrder, error: orderError } = await supabase
         .from('orders')
-        .insert(order)
+        .insert(orderData)
         .select()
         .single()
 
