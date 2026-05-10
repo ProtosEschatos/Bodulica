@@ -318,6 +318,37 @@ serve(async (req) => {
       })
     }
 
+    // Single product (admin only)
+    if (path.startsWith('/api/products/') && method === 'GET') {
+      if (!isAdmin) {
+        return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+          status: 401,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        })
+      }
+
+      const productMatch = path.match(/^\/api\/products\/([a-f0-9-]{8}-[a-f0-9-]{4}-[a-f0-9-]{12})$/)
+      if (!productMatch) {
+        return new Response(JSON.stringify({ error: 'Invalid product ID' }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        })
+      }
+      
+      const id = productMatch[1]
+      const { data: product, error } = await supabase
+        .from('products')
+        .select('*')
+        .eq('id', id)
+        .single()
+
+      if (error) throw error
+
+      return new Response(JSON.stringify(product || {}), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
     // Create product (admin only)
     if (path === '/api/products' && method === 'POST') {
       if (!isAdmin) {
@@ -365,7 +396,15 @@ serve(async (req) => {
         })
       }
 
-      const id = path.split('/').pop()
+      const productMatch = path.match(/^\/api\/products\/([a-f0-9-]{8}-[a-f0-9-]{4}-[a-f0-9-]{12})$/)
+      if (!productMatch) {
+        return new Response(JSON.stringify({ error: 'Invalid product ID' }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        })
+      }
+      
+      const id = productMatch[1]
       const body = await req.json()
 
       // Check if price changed
@@ -404,7 +443,15 @@ serve(async (req) => {
         })
       }
 
-      const id = path.split('/').pop()
+      const productMatch = path.match(/^\/api\/products\/([a-f0-9-]{8}-[a-f0-9-]{4}-[a-f0-9-]{12})$/)
+      if (!productMatch) {
+        return new Response(JSON.stringify({ error: 'Invalid product ID' }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        })
+      }
+      
+      const id = productMatch[1]
 
       const { error } = await supabase
         .from('products')
