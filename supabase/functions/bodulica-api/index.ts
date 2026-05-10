@@ -234,6 +234,43 @@ serve(async (req) => {
       })
     }
 
+    // Single product (public)
+    if (path.startsWith('/products/') && method === 'GET') {
+      const id = path.split('/products/')[1]?.split('/')[0]
+      console.log('Extracted product ID:', id)
+      
+      if (!id) {
+        return new Response(JSON.stringify({ error: 'Product ID not found', debug_id: id }), { 
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        })
+      }
+
+      const { data: product, error } = await supabase
+        .from('products')
+        .select('*')
+        .eq('id', id)
+        .single()
+
+      console.log('Product query result:', product, 'Error:', error)
+
+      if (error || !product) {
+        return new Response(JSON.stringify({ 
+          error: 'Product not found', 
+          debug_id: id, 
+          debug_error: error?.message 
+        }), { 
+          status: 404,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        })
+      }
+
+      return new Response(JSON.stringify(product), { 
+        status: 200,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
     // Admin login (public)
     if (path === '/api/login' && method === 'POST') {
       const body = await req.json()
@@ -336,11 +373,14 @@ serve(async (req) => {
       }
       
       const id = productMatch[1]
+      console.log('Looking for product ID:', id)
       const { data: product, error } = await supabase
         .from('products')
         .select('*')
         .eq('id', id)
         .single()
+
+      console.log('Product query result:', product, 'Error:', error)
 
       if (error) throw error
 
@@ -598,7 +638,7 @@ serve(async (req) => {
       }
 
       // Fetch products
-      const productIds = items.map(i => i.id)
+      const productIds = items.map(i => i.product_id)
       const { data: products, error: productsError } = await supabase
         .from('products')
         .select('*')
@@ -717,22 +757,25 @@ serve(async (req) => {
           'Authorization': `Bearer ${stripeKey}`,
           'Content-Type': 'application/x-www-form-urlencoded',
         },
-        body: new URLSearchParams({
-          payment_method_types: 'card',
-          line_items: JSON.stringify(lineItems.map(item => ({
-            price: item.price,
-            quantity: item.quantity,
-          }))),
-          mode: 'payment',
-          success_url: `${siteUrl}/shop.html?success=1&order=${orderNumber}`,
-          cancel_url: `${siteUrl}/shop.html?cancelled=1`,
-          customer_email,
-          metadata: JSON.stringify({
-            order_id: createdOrder.id,
-            order_number: orderNumber,
-          }),
-          shipping_address_collection: 'HR',
-        }).toString(),
+        body: (() => {
+          const params = new URLSearchParams()
+          params.append('mode', 'payment')
+          params.append('customer_email', customer_email)
+          params.append('success_url', `${siteUrl}/shop.html?success=1&order=${orderNumber}`)
+          params.append('cancel_url', `${siteUrl}/shop.html?cancelled=1`)
+          
+          lineItems.forEach((item, i) => {
+            params.append(`line_items[${i}][price]`, item.price)
+            params.append(`line_items[${i}][quantity]`, String(item.quantity))
+          })
+          
+          params.append('payment_method_types[0]', 'card')
+          params.append('shipping_address_collection[allowed_countries][0]', 'HR')
+          params.append('metadata[order_id]', createdOrder.id)
+          params.append('metadata[order_number]', orderNumber)
+          
+          return params.toString()
+        })(),
       })
 
       if (!sessionRes.ok) {
