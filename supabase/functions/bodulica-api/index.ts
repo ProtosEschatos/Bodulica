@@ -100,7 +100,14 @@ function slugify(name: string): string {
 
 async function createStripePrice(product: Product): Promise<string | null> {
   const stripeKey = Deno.env.get('STRIPE_SECRET_KEY')
-  if (!stripeKey) return null
+  console.log('Stripe key exists:', !!stripeKey)
+  console.log('Key prefix:', stripeKey?.substring(0, 7))
+  console.log('Key length:', stripeKey?.length)
+  
+  if (!stripeKey) {
+    console.error('No Stripe key found')
+    return null
+  }
 
   try {
     // Create Stripe product
@@ -126,6 +133,7 @@ async function createStripePrice(product: Product): Promise<string | null> {
     }
 
     const stripeProduct = await productRes.json()
+    console.log('Stripe product created:', stripeProduct.id)
 
     // Create Stripe price
     const priceRes = await fetch('https://api.stripe.com/v1/prices', {
@@ -147,9 +155,10 @@ async function createStripePrice(product: Product): Promise<string | null> {
     }
 
     const stripePrice = await priceRes.json()
+    console.log('Stripe price created:', stripePrice.id)
     return stripePrice.id
   } catch (error) {
-    console.error('Stripe error:', error)
+    console.error('Stripe error:', error.message)
     return null
   }
 }
