@@ -173,10 +173,12 @@ function apiCall(path,method,body){
   var opts={method:method,headers:{"Content-Type":"application/json"}};
   if(token)opts.headers["Authorization"]="Bearer "+token;
   if(body)opts.body=JSON.stringify(body);
-  return fetch(API+path,opts).then(function(r){
+  // Ensure path starts with / and API doesn't end with /
+  var fullUrl = API.replace(/\/$/, "") + "/" + path.replace(/^\//, "");
+  return fetch(fullUrl,opts).then(function(r){
     return r.json().then(function(data){
-      if(r.status===401){token=null;localStorage.removeItem("bod-admin-token");render();throw new Error("Neovla\u0161teni pristup");}
-      if(r.status>=400)throw new Error(data.error||"Gre\u0161ka");
+      if(r.status===401){token=null;localStorage.removeItem("bod-admin-token");render();throw new Error("Neovlašteni pristup");}
+      if(r.status>=400)throw new Error(data.error||"Greška");
       return data;
     });
   });

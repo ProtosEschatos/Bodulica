@@ -53,7 +53,7 @@ interface Order {
   total: number
   items: OrderItem[]
   stripe_session_id?: string
-  stripe_payment_intent_id?: string
+  stripe_payment_intent?: string
   created_at?: string
 }
 
@@ -179,12 +179,27 @@ serve(async (req) => {
   }
 
   const url = new URL(req.url)
-  const path = url.pathname
+  const fullPath = url.pathname
   const method = req.method
+  console.log(`Request received: ${method} ${fullPath}`)
+
+  // Try to find the endpoint regardless of whether it has the /functions/v1/bodulica-api prefix or not
+  const path = fullPath.endsWith('/health') ? '/health' :
+               fullPath.endsWith('/products') && method === 'GET' ? '/products' :
+               fullPath.endsWith('/api/login') ? '/api/login' :
+               fullPath.endsWith('/api/stats') ? '/api/stats' :
+               fullPath.endsWith('/api/products') ? '/api/products' :
+               fullPath.endsWith('/api/orders') ? '/api/orders' :
+               fullPath.endsWith('/api/upload') ? '/api/upload' :
+               fullPath.endsWith('/checkout') ? '/checkout' :
+               fullPath.endsWith('/webhook/stripe') ? '/webhook/stripe' :
+               fullPath;
+
+  console.log(`Matched internal path: ${path}`)
 
   // Create Supabase client
   const supabaseUrl = Deno.env.get('SUPABASE_URL') || 'https://mbputwgppweoeujiszgv.supabase.co'
-  const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || ''
+  const supabaseKey = Deno.env.get('SERVICE_ROLE_KEY') || Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || ''
   const supabase = createClient(supabaseUrl, supabaseKey)
 
   try {
@@ -447,14 +462,29 @@ serve(async (req) => {
         })
       }
 
-      const { data: orders, error } = await supabase
+      const { data: ordersData, error: ordersError } = await supabase
         .from('orders')
-        .select('*, items:order_items(*)')
+        .select('*')
         .order('created_at', { ascending: false })
 
-      if (error) throw error
+      if (ordersError) throw ordersError
 
-      return new Response(JSON.stringify(orders || []), {
+      // Fetch items for these orders
+      const orderIds = ordersData?.map(o => o.id) || []
+      const { data: itemsData, error: itemsError } = await supabase
+        .from('order_items')
+        .select('*')
+        .in('order_id', orderIds)
+
+      if (itemsError) throw itemsError
+
+      // Map items back to orders
+      const ordersWithItems = ordersData?.map(order => ({
+        ...order,
+        items: itemsData?.filter(item => item.order_id === order.id) || []
+      }))
+
+      return new Response(JSON.stringify(ordersWithItems || []), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })
     }
