@@ -601,7 +601,12 @@ serve(async (req) => {
       }
 
       // Create order object without items (they go to order_items table)
-      const orderNumber = `ORD-${Date.now()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`
+      // Format: BOD-YYMMDD-XXXX (max 20 chars)
+      const now = new Date()
+      const dateStr = now.toISOString().slice(2,10).replace(/-/g, '')
+      const rand = Math.random().toString(36).substring(2, 6).toUpperCase()
+      const orderNumber = `BOD-${dateStr}-${rand}`
+      
       const orderData = {
         order_number: orderNumber,
         customer_email,
