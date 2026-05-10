@@ -1,5 +1,5 @@
-// Deno Edge Function - runs in Supabase Edge Runtime
-import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
+// Deno Edge Function - runs in Supabase Edge Runtime - v3
+import { serve } from 'https://deno.land/std@0.131.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const corsHeaders = {
@@ -183,18 +183,13 @@ serve(async (req) => {
   const method = req.method
   console.log(`Request received: ${method} ${fullPath}`)
 
-  // Try to find the endpoint regardless of whether it has the /functions/v1/bodulica-api prefix or not
-  const path = fullPath.endsWith('/health') ? '/health' :
-               fullPath.endsWith('/products') && method === 'GET' ? '/products' :
-               fullPath.endsWith('/api/login') ? '/api/login' :
-               fullPath.endsWith('/api/stats') ? '/api/stats' :
-               fullPath.endsWith('/api/products') ? '/api/products' :
-               fullPath.endsWith('/api/orders') ? '/api/orders' :
-               fullPath.endsWith('/api/upload') ? '/api/upload' :
-               fullPath.endsWith('/checkout') ? '/checkout' :
-               fullPath.endsWith('/webhook/stripe') ? '/webhook/stripe' :
-               fullPath;
-
+  // Extract path after /bodulica-api
+  let path = fullPath
+  const apiMatch = fullPath.match(/\/(bodulica-api)(.*)/)
+  if (apiMatch && apiMatch[2]) {
+    path = apiMatch[2]
+  }
+  
   console.log(`Matched internal path: ${path}`)
 
   // Create Supabase client

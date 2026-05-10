@@ -102,6 +102,9 @@ enabled = true
 # Configure one of the supported pooler backends: `supabase`, `pgbouncer`, or `supavisor`.
 # pooler_backend = "supavisor"
 
+[functions.bodulica-api]
+verify_jwt = false
+
 [analytics]
 enabled = false
 port = 54327
