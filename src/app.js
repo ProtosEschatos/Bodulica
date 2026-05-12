@@ -25,10 +25,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 // Render products
 function renderProducts() {
     const pg = document.getElementById('pg');
-    const filtered = currentFilter === 'all' ? products : products.filter(p => p.cat === currentFilter);
+    const filtered = currentFilter === 'all' ? products : products.filter(p => p.category === currentFilter);
 
     pg.innerHTML = filtered.map(product => `
-        <div class="pc rv" data-cat="${product.cat}" onclick="openModal('${product.id}')">
+        <div class="pc rv" data-cat="${product.category}" onclick="openModal('${product.id}')">
             <div class="pw">
                 <div class="pi" style="background:linear-gradient(160deg,var(--b7),var(--b9));display:flex;align-items:center;justify-content:center;color:var(--t2);font-size:.8rem">
                     ${product.name.split(' — ')[0]}
@@ -36,12 +36,12 @@ function renderProducts() {
             </div>
             <button class="qb" onclick="event.stopPropagation();buyNow('${product.id}')" title="Dodaj">+</button>
             <div class="pb">
-                <div class="pt">${product.cat.toUpperCase()}</div>
+                <div class="pt">${product.category.toUpperCase()}</div>
                 <div class="pn">${product.name}</div>
-                <div class="pr">${product.desc}</div>
+                <div class="pr">${product.description}</div>
                 <div class="pf">
                     <div class="pp">${product.price}<span class="eu">EUR</span></div>
-                    <span class="bd ${product.badgeClass}">${product.badge}</span>
+                    <span class="bd bg-eco">✦ Prirodno</span>
                 </div>
             </div>
         </div>
@@ -66,9 +66,9 @@ function openModal(productId) {
     const product = products.find(p => p.id === productId);
     if (!product) return;
 
-    document.getElementById('modalCat').textContent = product.cat.toUpperCase();
+    document.getElementById('modalCat').textContent = product.category.toUpperCase();
     document.getElementById('modalName').textContent = product.name;
-    document.getElementById('modalDesc').textContent = product.desc;
+    document.getElementById('modalDesc').textContent = product.description;
     document.getElementById('modalDetails').textContent = 'Premium kvalitet, autentično porijeklo';
     document.getElementById('modalPrice').innerHTML = `${product.price}<span class="eu">EUR</span>`;
 
@@ -128,17 +128,17 @@ function updateCart() {
             </div>
             <div style="flex:1">
                 <div class="cin">${item.name}</div>
-                <div class="cip">${item.price} EUR x ${item.qty}</div>
+                <div class="cip">${parseFloat(item.price).toFixed(2)} EUR x ${item.qty}</div>
             </div>
             <button class="cir" onclick="removeFromCart('${item.id}')">Ukloni</button>
         </div>
     `).join('');
 
-    const total = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+    const total = cart.reduce((sum, item) => sum + (parseFloat(item.price) * item.qty), 0);
     const count = cart.reduce((sum, item) => sum + item.qty, 0);
 
     cartCount.textContent = count;
-    cartTotal.innerHTML = `${total}<span class="eu">EUR</span>`;
+    cartTotal.innerHTML = `${total.toFixed(2)}<span class="eu">EUR</span>`;
 
     saveCart();
 }
