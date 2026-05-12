@@ -760,8 +760,8 @@ serve(async (req) => {
           const params = new URLSearchParams()
           params.append('mode', 'payment')
           params.append('customer_email', customer_email)
-          params.append('success_url', `${siteUrl}/shop.html?success=1&order=${orderNumber}`)
-          params.append('cancel_url', `${siteUrl}/shop.html?cancelled=1`)
+          params.append('success_url', `${siteUrl}/index.html?checkout=success&order=${orderNumber}`)
+          params.append('cancel_url', `${siteUrl}/index.html?checkout=cancel`)
           
           lineItems.forEach((item, i) => {
             params.append(`line_items[${i}][price]`, item.price)
