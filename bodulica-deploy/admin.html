@@ -202,7 +202,7 @@ function login(){
 function logout(){token=null;localStorage.removeItem("bod-admin-token");render();}
 function loadData(){return Promise.all([apiCall("/api/stats"),apiCall("/api/products"),apiCall("/api/orders")]).then(function(r){stats=r[0];products=r[1];orders=r[2];}).catch(function(e){console.error(e);});}
 
-function saveProduct(isNew){
+async function saveProduct(isNew){ const imageFile=document.getElementById('product-image-file').files[0]; if(imageFile){const url=await uploadImage(imageFile);document.getElementById('product-image-url').value=url;}
   var prefix=isNew?"new-":"edit-";
   var data={
     name:document.getElementById(prefix+"name").value,
@@ -215,7 +215,7 @@ function saveProduct(isNew){
     description:document.getElementById(prefix+"desc").value||null,
     dimensions:document.getElementById(prefix+"dims").value||null,
     materials:document.getElementById(prefix+"mats").value||null,
-    image_url:document.getElementById(prefix+"imgurl").value||null,
+    image_url:document.getElementById('product-image-url').value||null,
     stripe_price_id:document.getElementById(prefix+"stripe")? document.getElementById(prefix+"stripe").value||null : null
   };
   var id=isNew?null:expandedId;
@@ -481,13 +481,6 @@ async function uploadImage(file) {
   return data.url;
 }
 
-// Updated saveProduct function
-async function saveProduct(isNew){
-  const imageFile = document.getElementById('product-image-file').files[0];
-  if (imageFile) {
-    const url = await uploadImage(imageFile);
-    document.getElementById('product-image-url').value = url;
-  }
   const imageUrl = document.getElementById('product-image-url').value;
 </script>
 </body>
