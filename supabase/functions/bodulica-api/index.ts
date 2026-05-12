@@ -120,10 +120,8 @@ async function createStripePrice(product: Product): Promise<string | null> {
       body: new URLSearchParams({
         name: product.name,
         description: product.description || '',
-        metadata: JSON.stringify({
-          category: product.category,
-          brand: product.brand || '',
-        }),
+        'metadata[category]': product.category,
+        'metadata[brand]': product.brand || '',
       }).toString(),
     })
 
@@ -495,7 +493,7 @@ serve(async (req) => {
 
       const { error } = await supabase
         .from('products')
-        .delete()
+        .update({ is_active: false, updated_at: new Date().toISOString() })
         .eq('id', id)
 
       if (error) throw error
