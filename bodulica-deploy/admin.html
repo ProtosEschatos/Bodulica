@@ -361,7 +361,7 @@ function renderProds(){
     rows+='<div class="form-grid"><div><label>Tip</label><select id="edit-unique"><option value="false" '+(p.is_unique!==true?"selected":"")+'>Na zalihi</option><option value="true" '+(p.is_unique===true?"selected":"")+'>Unikat (1 komad)</option></select></div><div><label>Zaliha</label><input id="edit-stock" type="number" min="0" value="'+(p.stock_quantity||0)+'"'+(p.is_unique?" disabled":"")+'></div></div>';
     rows+='<div class="form-grid"><div><label>Status</label><select id="edit-active"><option value="true" '+(p.is_active!==false?"selected":"")+'>Aktivan</option><option value="false" '+(p.is_active===false?"selected":"")+'>Neaktivan</option></select></div><div><label>Dimenzije</label><input id="edit-dims" value="'+esc(p.dimensions||"")+'"></div></div>';
     rows+='<div class="form-grid full"><div><label>Opis</label><textarea id="edit-desc">'+esc(p.description||"")+'</textarea></div></div>';
-    rows+='<div class="form-grid"><div><label>Materijali</label><input id="edit-mats" value="'+esc(p.materials||"")+'"></div><div><label>Stripe Price ID</label><input id="edit-stripe" value="'+esc(p.stripe_price_id||"")+'" placeholder="Automatski"></div></div>';
+    rows+='<div class="form-grid"><div><label>Materijali</label><input id="edit-mats" value="'+esc(p.materials||"")+'"></div><div><label>Stripe Price ID</label><input id="edit-stripe" value="'+esc(p.stripe_price_id||"")+'" placeholder="Automatski" readonly style="opacity:0.6;cursor:not-allowed"></div></div>';
     rows+='<div class="form-actions"><button class="btn btn-danger btn-sm" data-del="'+p.id+'">\ud83d\uddd1\ufe0f Obri\u0161i</button><div style="flex:1"></div><button class="btn btn-secondary" data-cancel>Odustani</button><button class="btn btn-primary" data-save>\ud83d\udcbe Spremi</button></div>';
     rows+='</div></td></tr>';
   });
@@ -376,7 +376,7 @@ function renderProds(){
     modal+='<div style="margin-bottom:1rem"><label>Opis</label><textarea id="new-desc" rows="4" required></textarea></div>';
     modal+='<div style="margin-bottom:1rem"><label style="display:block;margin-bottom:0.5rem;font-weight:600">Slika proizvoda</label><input type="file" id="product-image-file" accept="image/*" style="margin-bottom:0.5rem;display:block"><img id="image-preview" src="" alt="preview" style="max-height:120px;display:none;border-radius:8px;object-fit:cover">';
     modal+='<input type="hidden" id="product-image-url" name="image_url"></div>';
-    modal+='<div class="form-grid"><div><label>Materijali</label><input id="new-mats"></div><div><label>Stripe Price ID</label><input id="new-stripe" placeholder="Automatski"></div></div>';
+    modal+='<div class="form-grid"><div><label>Materijali</label><input id="new-mats"></div><div><label>Stripe Price ID</label><input id="new-stripe" placeholder="Automatski - kreira se sam" readonly style="opacity:0.6;cursor:not-allowed"></div></div>';
     modal+='<div class="form-actions"><button class="btn btn-secondary" id="modalCancel">Odustani</button><button class="btn btn-primary" id="modalSave">\u2705 Kreiraj</button></div>';
     modal+='</div></div>';
   }
