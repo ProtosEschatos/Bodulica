@@ -10,6 +10,9 @@
 /*.html
   Cache-Control: no-cache, no-store, must-revalidate
 
+/
+  Cache-Control: no-cache, no-store, must-revalidate
+
 # API responses
 /api/*
   Cache-Control: no-store, must-revalidate
