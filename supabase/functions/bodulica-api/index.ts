@@ -636,14 +636,33 @@ serve(async (req) => {
         })
       }
 
-      // Fetch products
+      // Fetch products - support both UUID and slug lookups
       const productIds = items.map(i => i.product_id)
-      const { data: products, error: productsError } = await supabase
-        .from('products')
-        .select('*')
-        .in('id', productIds)
+      
+      // Check if any IDs look like slugs (not UUIDs)
+      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+      const uuids = productIds.filter(id => uuidRegex.test(id))
+      const slugs = productIds.filter(id => !uuidRegex.test(id))
 
-      if (productsError || !products) {
+      let products: any[] = []
+
+      if (uuids.length > 0) {
+        const { data } = await supabase
+          .from('products')
+          .select('*')
+          .in('id', uuids)
+        if (data) products = products.concat(data)
+      }
+
+      if (slugs.length > 0) {
+        const { data } = await supabase
+          .from('products')
+          .select('*')
+          .in('slug', slugs)
+        if (data) products = products.concat(data)
+      }
+
+      if (!products || products.length === 0) {
         return new Response(JSON.stringify({ error: 'Products not found' }), {
           status: 400,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -656,7 +675,7 @@ serve(async (req) => {
       const orderItems: OrderItem[] = []
 
       for (const item of items) {
-        const product = products.find(p => p.id === item.product_id)
+        const product = products.find(p => p.id === item.product_id || p.slug === item.product_id)
         if (!product || !product.stripe_price_id) continue
 
         // Validate stock quantity
