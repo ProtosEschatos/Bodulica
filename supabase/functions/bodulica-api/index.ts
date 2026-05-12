@@ -397,6 +397,11 @@ serve(async (req) => {
       }
 
       const body = await req.json()
+      
+      // Always auto-create Stripe price - ignore any manually entered stripe_price_id
+      // (admin form has a field but it should be auto-generated)
+      delete body.stripe_price_id
+      
       const product: Product = {
         ...body,
         slug: slugify(body.name),
@@ -405,12 +410,12 @@ serve(async (req) => {
         updated_at: new Date().toISOString(),
       }
 
-      // Create Stripe price
-      if (!product.stripe_price_id) {
-        const stripePriceId = await createStripePrice(product)
-        if (stripePriceId) {
-          product.stripe_price_id = stripePriceId
-        }
+      // Create Stripe price automatically
+      const stripePriceId = await createStripePrice(product)
+      if (stripePriceId) {
+        product.stripe_price_id = stripePriceId
+      } else {
+        console.error('WARNING: Failed to create Stripe price for product:', product.name)
       }
 
       const { data, error } = await supabase
@@ -446,14 +451,35 @@ serve(async (req) => {
       const id = productMatch[1]
       const body = await req.json()
 
-      // Check if price changed
-      if (body.stripe_price_id && body.price) {
-        await updateStripePrice(body.stripe_price_id, body)
-        // Create new Stripe price
+      // Remove any manually entered stripe_price_id from the request
+      const manualStripeId = body.stripe_price_id
+      delete body.stripe_price_id
+
+      // Fetch existing product to check if price changed
+      const { data: existingProduct } = await supabase
+        .from('products')
+        .select('stripe_price_id, price')
+        .eq('id', id)
+        .single()
+
+      // If price changed, archive old Stripe price and create new one
+      if (existingProduct && body.price && body.price !== existingProduct.price) {
+        if (existingProduct.stripe_price_id) {
+          await updateStripePrice(existingProduct.stripe_price_id, body)
+        }
         const newPriceId = await createStripePrice(body)
         if (newPriceId) {
           body.stripe_price_id = newPriceId
         }
+      } else if (existingProduct && !existingProduct.stripe_price_id) {
+        // Product has no Stripe price yet - create one
+        const newPriceId = await createStripePrice({ ...existingProduct, ...body })
+        if (newPriceId) {
+          body.stripe_price_id = newPriceId
+        }
+      } else if (existingProduct?.stripe_price_id) {
+        // Keep existing stripe_price_id if price didn't change
+        body.stripe_price_id = existingProduct.stripe_price_id
       }
 
       const { data, error } = await supabase
