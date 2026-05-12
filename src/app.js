@@ -31,8 +31,14 @@ function renderProducts() {
     pg.innerHTML = filtered.map(product => `
         <div class="pc rv" data-cat="${product.category}" onclick="openModal('${product.id}')">
             <div class="pw">
-                <img src="${product.image_url || ''}" alt="${product.name}" 
-                     loading="lazy" onerror="this.style.display='none'">
+                <div style="width:100%;aspect-ratio:1;overflow:hidden;border-radius:8px;
+margin-bottom:0.75rem;background:#1a1a2e">
+  <img src="${product.image_url || ''}" 
+       alt="${product.name}"
+       style="width:100%;height:100%;object-fit:cover"
+       loading="lazy"
+       onerror="this.parentElement.style.background='#2a2a3e';this.style.display='none'">
+</div>
                 <div class="pi" style="background:linear-gradient(160deg,var(--b7),var(--b9));display:flex;align-items:center;justify-content:center;color:var(--t2);font-size:.8rem">
                     ${product.name.split(' — ')[0]}
                 </div>
