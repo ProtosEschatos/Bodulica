@@ -103,6 +103,30 @@
         <div class="ftc">© 2024 Bodulica · Betina, Murter · Sva prava pridržana</div>
     </footer>
 
+    <div id="checkout-modal" style="display:none;position:fixed;inset:0;z-index:1000;
+background:rgba(0,0,0,0.7);align-items:center;justify-content:center;">
+  <div style="background:var(--color-surface);border-radius:var(--radius-lg);
+  padding:2rem;max-width:480px;width:90%;max-height:90vh;overflow-y:auto;">
+    <h3 style="margin-bottom:1.5rem">Podaci za dostavu</h3>
+    <form id="checkout-form">
+      <label>Ime i prezime<input type="text" id="co-name" required placeholder="Ivo Horvat"></label>
+      <label>Email<input type="email" id="co-email" required placeholder="ivo@email.com"></label>
+      <label>Telefon<input type="tel" id="co-phone" placeholder="+385 91 234 5678"></label>
+      <label>Adresa<input type="text" id="co-address" required placeholder="Ulica i broj"></label>
+      <label>Grad<input type="text" id="co-city" required placeholder="Zagreb"></label>
+      <label>Poštanski broj<input type="text" id="co-zip" required placeholder="10000"></label>
+      <label>Napomena<textarea id="co-note" rows="3" placeholder="Napomena za dostavu (opcionalno)"></textarea></label>
+      <div style="display:flex;gap:1rem;margin-top:1.5rem">
+        <button type="button" id="checkout-cancel" style="flex:1">Odustani</button>
+        <button type="submit" style="flex:2;background:var(--color-primary);
+        color:white;border-radius:var(--radius-md);padding:0.75rem">
+          Nastavi na plaćanje →
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
     <script src="app.js"></script>
         <script src="shop-api.js"></script>
 </body>

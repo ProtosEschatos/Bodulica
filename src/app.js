@@ -165,10 +165,67 @@ function loadCart() {
 
 function checkout() {
     if (cart.length === 0) return;
-    alert('Hvala na narudžbi! Kontaktirat ćemo vas uskoro.');
-    cart = [];
-    updateCart();
-    toggleCart();
+    document.getElementById('checkout-modal').style.display = 'flex';
+}
+
+// Checkout modal event listeners
+document.getElementById('checkout-cancel').onclick = () =>
+    document.getElementById('checkout-modal').style.display = 'none';
+
+document.getElementById('checkout-form').onsubmit = async (e) => {
+    e.preventDefault();
+    document.getElementById('checkout-modal').style.display = 'none';
+    // ovdje ide postojeći stripe checkout poziv
+    await processCheckout();
+}
+
+async function processCheckout() {
+    try {
+        const formData = {
+            name: document.getElementById('co-name').value,
+            email: document.getElementById('co-email').value,
+            phone: document.getElementById('co-phone').value,
+            address: document.getElementById('co-address').value,
+            city: document.getElementById('co-city').value,
+            zip: document.getElementById('co-zip').value,
+            note: document.getElementById('co-note').value
+        };
+
+        const checkoutData = {
+            items: cart.map(item => ({
+                product_id: item.id,
+                quantity: item.qty,
+                unit_price: parseFloat(item.price)
+            })),
+            customer_email: formData.email,
+            shipping_details: {
+                name: formData.name,
+                address: formData.address,
+                city: formData.city,
+                postal_code: formData.zip,
+                country: 'HR'
+            }
+        };
+
+        const res = await fetch(API_BASE + '/checkout', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(checkoutData)
+        });
+
+        const result = await res.json();
+        
+        if (res.ok && result.url) {
+            window.location.href = result.url;
+        } else {
+            alert('Greška prilikom obrade narudžbe: ' + (result.error || 'Nepoznata greška'));
+        }
+    } catch (error) {
+        console.error('Checkout error:', error);
+        alert('Greška prilikom obrade narudžbe. Molimo pokušajte ponovo.');
+    }
 }
 
 // Scroll progress
