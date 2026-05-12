@@ -5,3 +5,11 @@
   X-XSS-Protection: 1; mode=block
   Permissions-Policy: camera=(), microphone=(), geolocation=()
   X-Robots-Tag: noimageai, noai
+
+# HTML files
+/*.html
+  Cache-Control: no-cache, no-store, must-revalidate
+
+# API responses
+/api/*
+  Cache-Control: no-store, must-revalidate
