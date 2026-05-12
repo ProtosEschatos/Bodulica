@@ -10,6 +10,7 @@ let currentFilter = 'all';
 async function loadProducts() {
     const res = await fetch(API_BASE + '/products');
     products = await res.json();
+    products = products.filter(p => p.is_active !== false);
     renderProducts();
 }
 
@@ -25,11 +26,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 // Render products
 function renderProducts() {
     const pg = document.getElementById('pg');
-    const filtered = currentFilter === 'all' ? products : products.filter(p => p.category === currentFilter);
+    const filtered = currentFilter === 'all' ? products : products.filter(p => p.category?.toLowerCase() === currentFilter.toLowerCase());
 
     pg.innerHTML = filtered.map(product => `
         <div class="pc rv" data-cat="${product.category}" onclick="openModal('${product.id}')">
             <div class="pw">
+                <img src="${product.image_url || ''}" alt="${product.name}" 
+                     loading="lazy" onerror="this.style.display='none'">
                 <div class="pi" style="background:linear-gradient(160deg,var(--b7),var(--b9));display:flex;align-items:center;justify-content:center;color:var(--t2);font-size:.8rem">
                     ${product.name.split(' — ')[0]}
                 </div>
