@@ -364,7 +364,16 @@ function renderProds(){
     modal+='<div class="form-grid"><div><label>Kategorija *</label><select id="new-category">'+catOpts("")+'</select></div><div><label>Cijena (EUR) *</label><input id="new-price" type="number" step="0.01" min="0"></div></div>';
     modal+='<div class="form-grid"><div><label>Tip</label><select id="new-unique"><option value="false" selected>Na zalihi</option><option value="true">Unikat (1 komad)</option></select></div><div><label>Zaliha</label><input id="new-stock" type="number" min="0" value="10"></div></div>';
     modal+='<div class="form-grid"><div><label>Status</label><select id="new-active"><option value="true" selected>Aktivan</option><option value="false">Neaktivan</option></select></div><div><label>Dimenzije</label><input id="new-dims"></div></div>';
-    modal+='<div class="form-grid full"><div><label>Opis</label><textarea id="new-desc"></textarea></div></div>';
+    modal+='<div class="form-group">
+    <label>Opis</label>
+    <textarea id="new-desc" rows="4" required></textarea>
+  </div>
+  <div class="form-group">
+    <label>Slika proizvoda</label>
+    <input type="file" id="new-product-image-file" accept="image/*">
+    <img id="new-image-preview" style="max-height:120px;margin-top:8px;display:none;border-radius:8px">
+    <input type="hidden" id="new-product-image-url" name="image_url">
+  </div>';
     modal+='<div class="form-grid"><div><label>Materijali</label><input id="new-mats"></div><div><label>Stripe Price ID</label><input id="new-stripe" placeholder="Automatski"></div></div>';
     modal+='<div class="form-actions"><button class="btn btn-secondary" id="modalCancel">Odustani</button><button class="btn btn-primary" id="modalSave">\u2705 Kreiraj</button></div>';
     modal+='</div></div>';
@@ -428,6 +437,10 @@ function bindEvents(){
   // Edit file upload
   var editFile=document.getElementById("edit-fileInput");
   if(editFile)editFile.onchange=function(){handleUpload(editFile,"edit-imgpreview","edit-imgurl","edit-uploadStatus");};
+
+  // Product image upload
+  var imageFile=document.getElementById("product-image");
+  if(imageFile)imageFile.onchange=function(){handleUpload(imageFile,"image-preview","image-url","image-uploadStatus");};
 
   // Order status
   document.querySelectorAll("[data-otoggle]").forEach(function(row){
