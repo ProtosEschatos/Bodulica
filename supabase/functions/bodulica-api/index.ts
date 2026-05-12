@@ -364,7 +364,7 @@ serve(async (req) => {
         })
       }
 
-      const productMatch = path.match(/^\/api\/products\/([a-f0-9-]{8}-[a-f0-9-]{4}-[a-f0-9-]{12})$/)
+      const productMatch = path.match(/^\/api\/products\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$/)
       if (!productMatch) {
         return new Response(JSON.stringify({ error: 'Invalid product ID' }), {
           status: 400,
@@ -436,7 +436,7 @@ serve(async (req) => {
         })
       }
 
-      const productMatch = path.match(/^\/api\/products\/([a-f0-9-]{8}-[a-f0-9-]{4}-[a-f0-9-]{12})$/)
+      const productMatch = path.match(/^\/api\/products\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$/)
       if (!productMatch) {
         return new Response(JSON.stringify({ error: 'Invalid product ID' }), {
           status: 400,
@@ -483,7 +483,7 @@ serve(async (req) => {
         })
       }
 
-      const productMatch = path.match(/^\/api\/products\/([a-f0-9-]{8}-[a-f0-9-]{4}-[a-f0-9-]{12})$/)
+      const productMatch = path.match(/^\/api\/products\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$/)
       if (!productMatch) {
         return new Response(JSON.stringify({ error: 'Invalid product ID' }), {
           status: 400,
