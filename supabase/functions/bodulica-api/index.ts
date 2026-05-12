@@ -400,6 +400,7 @@ serve(async (req) => {
       const product: Product = {
         ...body,
         slug: slugify(body.name),
+        is_active: true,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       }
