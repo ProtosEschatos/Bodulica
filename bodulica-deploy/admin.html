@@ -211,8 +211,34 @@ function login(){
 function logout(){token=null;localStorage.removeItem("bod-admin-token");render();}
 function loadData(){return Promise.all([apiCall("/api/stats"),apiCall("/api/products"),apiCall("/api/orders")]).then(function(r){stats=r[0];products=r[1];orders=r[2];}).catch(function(e){console.error(e);});}
 
-async function saveProduct(isNew){ const imageFile=document.getElementById('product-image-file').files[0]; if(imageFile){const url=await uploadImage(imageFile);document.getElementById('product-image-url').value=url;}
+async function saveProduct(isNew){
   var prefix=isNew?"new-":"edit-";
+  
+  // Handle image upload - different elements for new vs edit
+  var imageUrl = null;
+  if(isNew){
+    // New product: check product-image-file first, then new-imgurl (from drag-upload)
+    var newImageFile = document.getElementById('product-image-file');
+    if(newImageFile && newImageFile.files[0]){
+      var url = await uploadImage(newImageFile.files[0]);
+      imageUrl = url;
+    } else {
+      var newImgUrl = document.getElementById('new-imgurl');
+      imageUrl = newImgUrl ? newImgUrl.value || null : null;
+    }
+  } else {
+    // Edit product: check edit-fileInput, then edit-imgurl (existing value)
+    var editFileInput = document.getElementById('edit-fileInput');
+    var editImgUrl = document.getElementById('edit-imgurl');
+    if(editFileInput && editFileInput.files && editFileInput.files[0]){
+      var url = await uploadImage(editFileInput.files[0]);
+      imageUrl = url;
+      if(editImgUrl) editImgUrl.value = url;
+    } else {
+      imageUrl = editImgUrl ? editImgUrl.value || null : null;
+    }
+  }
+  
   var data={
     name:document.getElementById(prefix+"name").value,
     brand:document.getElementById(prefix+"brand").value||null,
@@ -224,7 +250,7 @@ async function saveProduct(isNew){ const imageFile=document.getElementById('prod
     description:document.getElementById(prefix+"desc").value||null,
     dimensions:document.getElementById(prefix+"dims").value||null,
     materials:document.getElementById(prefix+"mats").value||null,
-    image_url:document.getElementById('product-image-url').value||null,
+    image_url: imageUrl,
     stripe_price_id:document.getElementById(prefix+"stripe")? document.getElementById(prefix+"stripe").value||null : null
   };
   var id=isNew?null:expandedId;
