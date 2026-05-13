@@ -85,6 +85,14 @@ tr:hover td{background:rgba(91,184,240,.02)}
 .upload-status{font-size:11px;color:var(--accent);margin-top:4px}
 .form-hint{font-size:11px;color:var(--text2);margin-top:4px;line-height:1.5}
 
+/* Image gallery */
+.img-gallery{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:16px;align-items:flex-start}
+.img-gallery-item{position:relative;flex-shrink:0}
+.img-gallery-item img{display:block}
+.img-gallery-del{position:absolute;top:-6px;right:-6px;width:22px;height:22px;border-radius:50%;background:var(--red);color:#fff;font-size:12px;display:flex;align-items:center;justify-content:center;cursor:pointer;border:2px solid var(--bg2);line-height:1;padding:0}
+.img-gallery-add{width:80px;height:80px;border-radius:8px;border:2px dashed var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:12px;color:var(--text2);transition:all .2s;flex-shrink:0;text-align:center}
+.img-gallery-add:hover{border-color:var(--accent);color:var(--accent)}
+
 /* New product modal */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(4px);z-index:100;display:flex;align-items:flex-start;justify-content:center;padding:40px 20px;overflow-y:auto}
 .modal{background:var(--bg2);border:1px solid var(--border);border-radius:12px;width:100%;max-width:640px;padding:28px;transition:background .3s}
@@ -152,6 +160,10 @@ button,select,.nav-item,.product-row,.theme-toggle,.upload-btn{-webkit-touch-cal
   .stats{grid-template-columns:1fr}
   .form-actions{flex-direction:column}
   .form-actions .btn{width:100%;justify-content:center}
+  .img-gallery{gap:8px}
+  .img-gallery-item img{width:64px!important;height:64px!important}
+  .img-gallery-add{width:64px;height:64px;font-size:11px}
+  .img-gallery-del{width:26px;height:26px;font-size:14px;top:-8px;right:-8px}
 }
 </style>
 </head>
@@ -162,6 +174,7 @@ var API="https://mbputwgppweoeujiszgv.supabase.co/functions/v1/bodulica-api";
 var token=localStorage.getItem("bod-admin-token");
 var theme=localStorage.getItem("bod-admin-theme")||"dark";
 var page="dashboard",products=[],orders=[],stats={},expandedId=null,expandedOrderId=null,showNewModal=false,search="";
+var editImages=[];var newImages=[];
 document.documentElement.setAttribute("data-theme",theme);
 var CATS=[{v:"moda",l:"Moda"},{v:"delicije",l:"Delicije"},{v:"kozmetika",l:"Kozmetika"},{v:"rucni-rad",l:"Ru\u010dni radovi"},{v:"art",l:"Art"},{v:"djeca",l:"Djeca"}];
 var ST={pending:{l:"Na \u010dekanju",c:"badge-orange"},paid:{l:"Pla\u0107eno",c:"badge-green"},processing:{l:"U pripremi",c:"badge-blue"},shipped:{l:"Poslano",c:"badge-purple"},delivered:{l:"Dostavljeno",c:"badge-green"},cancelled:{l:"Otkazano",c:"badge-red"}};
@@ -214,30 +227,8 @@ function loadData(){return Promise.all([apiCall("/api/stats"),apiCall("/api/prod
 async function saveProduct(isNew){
   var prefix=isNew?"new-":"edit-";
   
-  // Handle image upload - different elements for new vs edit
-  var imageUrl = null;
-  if(isNew){
-    // New product: check product-image-file first, then new-imgurl (from drag-upload)
-    var newImageFile = document.getElementById('product-image-file');
-    if(newImageFile && newImageFile.files[0]){
-      var url = await uploadImage(newImageFile.files[0]);
-      imageUrl = url;
-    } else {
-      var newImgUrl = document.getElementById('new-imgurl');
-      imageUrl = newImgUrl ? newImgUrl.value || null : null;
-    }
-  } else {
-    // Edit product: check edit-fileInput, then edit-imgurl (existing value)
-    var editFileInput = document.getElementById('edit-fileInput');
-    var editImgUrl = document.getElementById('edit-imgurl');
-    if(editFileInput && editFileInput.files && editFileInput.files[0]){
-      var url = await uploadImage(editFileInput.files[0]);
-      imageUrl = url;
-      if(editImgUrl) editImgUrl.value = url;
-    } else {
-      imageUrl = editImgUrl ? editImgUrl.value || null : null;
-    }
-  }
+  // Collect images from the gallery state
+  var images=isNew?newImages.slice():editImages.slice();
   
   var data={
     name:document.getElementById(prefix+"name").value,
@@ -250,14 +241,15 @@ async function saveProduct(isNew){
     description:document.getElementById(prefix+"desc").value||null,
     dimensions:document.getElementById(prefix+"dims").value||null,
     materials:document.getElementById(prefix+"mats").value||null,
-    image_url: imageUrl,
+    images: images,
+    image_url: images.length>0?images[0]:null,
     stripe_price_id:document.getElementById(prefix+"stripe")? document.getElementById(prefix+"stripe").value||null : null
   };
   var id=isNew?null:expandedId;
   var promise=id?apiCall("/api/products/"+id,"PUT",data):apiCall("/api/products","POST",data);
   promise.then(function(){
     toast(id?"Proizvod a\u017euriran":"Proizvod kreiran");
-    expandedId=null;showNewModal=false;return loadData();
+    expandedId=null;showNewModal=false;newImages=[];editImages=[];return loadData();
   }).then(render).catch(function(e){toast(e.message,true);});
 }
 
@@ -318,7 +310,7 @@ function render(){
     document.getElementById("loginPass").onkeydown=function(e){if(e.key==="Enter")login();};
     return;
   }
-  var navItems=[{id:"dashboard",icon:"\ud83d\udcca",label:"Pregled"},{id:"products",icon:"\ud83d\udecd\ufe0f",label:"Proizvodi"},{id:"orders",icon:"\ud83d\udce6",label:"Narud\u017ebe"},{id:"guide",icon:"\ud83d\udcb3",label:"Vodi\u010d"}];
+  var navItems=[{id:"dashboard",icon:"\ud83d\udcca",label:"Pregled"},{id:"products",icon:"\ud83d\udecd\ufe0f",label:"Proizvodi"},{id:"archive",icon:"\ud83d\udcc2",label:"Arhiva"},{id:"orders",icon:"\ud83d\udce6",label:"Narud\u017ebe"},{id:"guide",icon:"\ud83d\udcb3",label:"Vodi\u010d"}];
   var navHtml=navItems.map(function(i){return '<div class="nav-item '+(page===i.id?"active":"")+'" data-page="'+i.id+'">'+i.icon+" "+i.label+'</div>';}).join("");
   var themeIcon=theme==="dark"?"\u2600\ufe0f Svijetli":"\ud83c\udf19 Tamni";
   app.innerHTML='<div class="mobile-header"><span class="logo-m">Bodulica</span><button class="hamburger" id="menuBtn">\u2630</button></div><div class="mobile-overlay" id="mobileOverlay"></div><div class="sidebar"><div class="logo">Bodulica<span>Admin Panel</span></div>'+navHtml+'<div class="nav-sep"></div><div class="theme-toggle" id="themeBtn">'+themeIcon+'</div><div class="nav-item" id="btnLogout">\ud83d\udeaa Odjavi se</div></div><div class="main" id="mainContent"></div>';
@@ -352,10 +344,24 @@ function render(){
 
 function renderPage(){
   if(page==="dashboard")return renderDash();
-  if(page==="products")return renderProds();
+  if(page==="products")return renderProds(true);
+  if(page==="archive")return renderProds(false);
   if(page==="orders")return renderOrds();
   if(page==="guide")return renderGuide();
   return "";
+}
+
+function renderImageGallery(imgs,prefix){
+  var h='<div class="img-gallery" id="'+prefix+'-gallery">';
+  (imgs||[]).forEach(function(url,i){
+    h+='<div class="img-gallery-item" data-idx="'+i+'">';
+    h+='<img src="'+esc(url)+'" style="width:80px;height:80px;border-radius:8px;object-fit:cover;border:2px solid var(--border)">';
+    h+='<button class="img-gallery-del" data-imgdel="'+prefix+'-'+i+'" title="Ukloni">\u2715</button>';
+    h+='</div>';
+  });
+  h+='<label class="img-gallery-add"><span>+ Dodaj</span><input type="file" accept="image/*" id="'+prefix+'-addimg" multiple style="display:none"></label>';
+  h+='</div>';
+  return h;
 }
 
 function renderDash(){
@@ -370,18 +376,26 @@ function renderDash(){
   return '<div class="page-header"><h2>\ud83d\udcca Pregled</h2></div><div class="stats"><div class="stat-card"><div class="stat-label">Narud\u017ebe</div><div class="stat-value">'+(stats.orders||0)+'</div></div><div class="stat-card"><div class="stat-label">Prihod</div><div class="stat-value">'+(stats.revenue||0).toFixed(2)+' \u20ac</div></div><div class="stat-card"><div class="stat-label">Proizvodi</div><div class="stat-value">'+(stats.products||0)+'</div></div><div class="stat-card"><div class="stat-label">Kupci</div><div class="stat-value">'+(stats.uniqueCustomers||0)+'</div></div></div><div class="table-wrap"><div class="table-top"><strong>Zadnje narud\u017ebe</strong></div><table><thead><tr><th>Broj</th><th>Kupac</th><th>Iznos</th><th>Status</th><th>Datum</th><th></th></tr></thead><tbody>'+rows+'</tbody></table></div>';
 }
 
-function renderProds(){
+function renderProds(showActive){
+  var isArchive=!showActive;
+  var filtered=products.filter(function(p){
+    if(showActive) return p.is_active && !(p.is_unique && p.stock_quantity<=0);
+    else return !p.is_active || (p.is_unique && p.stock_quantity<=0);
+  });
   var rows="";
-  products.forEach(function(p){
+  filtered.forEach(function(p){
     var vis=true;
     if(search){vis=(p.name+" "+p.brand+" "+p.category).toLowerCase().indexOf(search.toLowerCase())>=0;}
     if(!vis)return;
-    var img=p.image_url?'<img class="thumb" src="'+esc(p.image_url)+'">':'<div class="thumb-placeholder">\ud83d\udecd\ufe0f</div>';
+    var imgs=p.images&&p.images.length?p.images:(p.image_url?[p.image_url]:[]);
+    var img=imgs.length?'<img class="thumb" src="'+esc(imgs[0])+'">':'<div class="thumb-placeholder">\ud83d\udecd\ufe0f</div>';
     var badges=(p.is_unique?'<span class="badge badge-purple">Unikat</span> ':'')+(p.is_active?'<span class="badge badge-green">Aktivan</span>':'<span class="badge badge-red">Neaktivan</span>');
+    if(isArchive && p.is_unique && p.stock_quantity<=0) badges+=' <span class="badge badge-orange">Prodano</span>';
     var isOpen=expandedId===p.id;
     rows+='<tr class="product-row" data-toggle="'+p.id+'"><td>'+img+'<div><strong>'+esc(p.name)+'</strong><br><span style="font-size:11px;color:var(--text2)">'+esc(p.slug)+'</span></div></td><td>'+esc(p.brand||"\u2014")+'</td><td>'+catLabel(p.category)+'</td><td><strong>'+parseFloat(p.price).toFixed(2)+' \u20ac</strong></td><td>'+(p.stock_quantity||0)+'</td><td>'+badges+'</td><td style="text-align:right;font-size:16px">'+(isOpen?"\u25b2":"\u25bc")+'</td></tr>';
     rows+='<tr class="expand-row '+(isOpen?"open":"")+'" id="expand-'+p.id+'"><td colspan="7"><div class="expand-content">';
-    rows+='<div class="img-preview"><div id="edit-imgpreview">'+(p.image_url?'<img src="'+esc(p.image_url)+'" style="width:80px;height:80px;border-radius:8px;object-fit:cover;border:2px solid var(--border)">':'<div class="img-placeholder">\ud83d\udcf7</div>')+'</div><div><label class="upload-btn">\ud83d\udcc1 Promijeni sliku<input type="file" accept="image/*" id="edit-fileInput"></label><div class="upload-status" id="edit-uploadStatus"></div><input type="hidden" id="edit-imgurl" value="'+esc(p.image_url||"")+'"></div></div>';
+    rows+='<label style="margin-bottom:8px">Slike proizvoda</label>';
+    rows+=renderImageGallery(imgs,"edit");
     rows+='<div class="form-grid"><div><label>Naziv</label><input id="edit-name" value="'+esc(p.name)+'"></div><div><label>Brand</label><input id="edit-brand" value="'+esc(p.brand||"")+'"></div></div>';
     rows+='<div class="form-grid"><div><label>Kategorija</label><select id="edit-category">'+catOpts(p.category)+'</select></div><div><label>Cijena (EUR)</label><input id="edit-price" type="number" step="0.01" value="'+p.price+'"></div></div>';
     rows+='<div class="form-grid"><div><label>Tip</label><select id="edit-unique"><option value="false" '+(p.is_unique!==true?"selected":"")+'>Na zalihi</option><option value="true" '+(p.is_unique===true?"selected":"")+'>Unikat (1 komad)</option></select></div><div><label>Zaliha</label><input id="edit-stock" type="number" min="0" value="'+(p.stock_quantity||0)+'"'+(p.is_unique?" disabled":"")+'></div></div>';
@@ -392,21 +406,22 @@ function renderProds(){
     rows+='</div></td></tr>';
   });
   var modal="";
-  if(showNewModal){
+  if(showNewModal && showActive){
     modal='<div class="modal-overlay" id="modalOverlay"><div class="modal"><h3>\u2795 Novi proizvod<button class="close-btn" id="modalClose">\u2715</button></h3>';
-    modal+='<div class="img-preview"><div id="new-imgpreview"><div class="img-placeholder">\ud83d\udcf7</div></div><div><label class="upload-btn">\ud83d\udcc1 Odaberi sliku<input type="file" accept="image/*" id="new-fileInput"></label><div class="upload-status" id="new-uploadStatus"></div><input type="hidden" id="new-imgurl" value=""></div></div>';
+    modal+='<label style="margin-bottom:8px">Slike proizvoda</label>';
+    modal+=renderImageGallery(newImages,"new");
     modal+='<div class="form-grid"><div><label>Naziv *</label><input id="new-name" required></div><div><label>Brand</label><input id="new-brand"></div></div>';
     modal+='<div class="form-grid"><div><label>Kategorija *</label><select id="new-category">'+catOpts("")+'</select></div><div><label>Cijena (EUR) *</label><input id="new-price" type="number" step="0.01" min="0"></div></div>';
     modal+='<div class="form-grid"><div><label>Tip</label><select id="new-unique"><option value="false" selected>Na zalihi</option><option value="true">Unikat (1 komad)</option></select></div><div><label>Zaliha</label><input id="new-stock" type="number" min="0" value="10"></div></div>';
     modal+='<div class="form-grid"><div><label>Status</label><select id="new-active"><option value="true" selected>Aktivan</option><option value="false">Neaktivan</option></select></div><div><label>Dimenzije</label><input id="new-dims"></div></div>';
     modal+='<div style="margin-bottom:1rem"><label>Opis</label><textarea id="new-desc" rows="4" required></textarea></div>';
-    modal+='<div style="margin-bottom:1rem"><label style="display:block;margin-bottom:0.5rem;font-weight:600">Slika proizvoda</label><input type="file" id="product-image-file" accept="image/*" style="margin-bottom:0.5rem;display:block"><img id="image-preview" src="" alt="preview" style="max-height:120px;display:none;border-radius:8px;object-fit:cover">';
-    modal+='<input type="hidden" id="product-image-url" name="image_url"></div>';
     modal+='<div class="form-grid"><div><label>Materijali</label><input id="new-mats"></div><div><label>Stripe Price ID</label><input id="new-stripe" placeholder="Automatski - kreira se sam" readonly style="opacity:0.6;cursor:not-allowed"></div></div>';
     modal+='<div class="form-actions"><button class="btn btn-secondary" id="modalCancel">Odustani</button><button class="btn btn-primary" id="modalSave">\u2705 Kreiraj</button></div>';
     modal+='</div></div>';
   }
-  return '<div class="page-header"><h2>\ud83d\udecd\ufe0f Proizvodi ('+products.length+')</h2><button class="btn btn-primary" id="btnAdd">+ Novi proizvod</button></div><div class="table-wrap"><div class="table-top"><input type="text" placeholder="Pretra\u017ei..." id="searchInput"></div><table><thead><tr><th>Proizvod</th><th>Brand</th><th>Kategorija</th><th>Cijena</th><th>Zaliha</th><th>Status</th><th></th></tr></thead><tbody>'+rows+'</tbody></table></div>'+modal;
+  var title=isArchive?'\ud83d\udcc2 Arhiva ('+filtered.length+')':'\ud83d\udecd\ufe0f Proizvodi ('+filtered.length+')';
+  var addBtn=isArchive?'':'<button class="btn btn-primary" id="btnAdd">+ Novi proizvod</button>';
+  return '<div class="page-header"><h2>'+title+'</h2>'+addBtn+'</div><div class="table-wrap"><div class="table-top"><input type="text" placeholder="Pretra\u017ei..." id="searchInput"></div><table><thead><tr><th>Proizvod</th><th>Brand</th><th>Kategorija</th><th>Cijena</th><th>Zaliha</th><th>Status</th><th></th></tr></thead><tbody>'+(rows||'<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--text2)">'+(isArchive?'Nema arhiviranih proizvoda':'Nema aktivnih proizvoda')+'</td></tr>')+'</tbody></table></div>'+modal;
 }
 
 function renderOrds(){
@@ -426,9 +441,61 @@ function renderGuide(){
   return '<div class="page-header"><h2>\ud83d\udcb3 Vodi\u010d</h2></div><div class="guide"><h3>Kako dodati novi proizvod</h3><ol><li>Klikni "+ Novi proizvod"</li><li>Uploadaj sliku, ispuni podatke</li><li>Odaberi tip: "Na zalihi" ili "Unikat"</li><li>Klikni "Kreiraj" \u2014 proizvod je odmah na shopu + u Stripe-u</li></ol><div class="tip"><p>Cijena i proizvod se automatski kreiraju u Stripe-u. Ne treba\u0161 ni\u0161ta raditi u Stripe Dashboardu.</p></div></div><div class="guide"><h3>Ure\u0111ivanje</h3><p>Klikni na bilo koji proizvod u tablici \u2014 otvori se forma za ure\u0111ivanje sa svim poljima i slikom. Promijeni \u0161to treba\u0161 i klikni Spremi.</p></div><div class="guide"><h3>Unikati</h3><p>Proizvodi koji postoje u 1 primjerku. Nakon prodaje automatski se uklanjaju s webshopa.</p></div><div class="guide"><h3>Narud\u017ebe</h3><p>Status: Pla\u0107eno \u2192 U pripremi \u2192 Poslano \u2192 Dostavljeno.</p></div>';
 }
 
+function galleryAddFiles(files,prefix){
+  var arr=prefix==="new"?newImages:editImages;
+  var pending=files.length;
+  var statusEl=document.getElementById(prefix+"-gallery");
+  if(statusEl){var tip=document.createElement("div");tip.className="upload-status";tip.id=prefix+"-gal-status";tip.textContent="Uploading "+pending+" file(s)...";statusEl.appendChild(tip);}
+  Array.from(files).forEach(function(file){
+    uploadImage(file).then(function(url){
+      arr.push(url);
+      pending--;
+      if(pending<=0){refreshGallery(prefix);}
+    }).catch(function(err){
+      pending--;
+      toast("Upload error: "+err.message,true);
+      if(pending<=0){refreshGallery(prefix);}
+    });
+  });
+}
+
+function galleryDelete(prefix,idx){
+  var arr=prefix==="new"?newImages:editImages;
+  arr.splice(idx,1);
+  refreshGallery(prefix);
+}
+
+function refreshGallery(prefix){
+  var arr=prefix==="new"?newImages:editImages;
+  var container=document.getElementById(prefix+"-gallery");
+  if(!container)return;
+  container.outerHTML=renderImageGallery(arr,prefix);
+  bindGalleryEvents(prefix);
+}
+
+function bindGalleryEvents(prefix){
+  // Bind add-image file input
+  var addInput=document.getElementById(prefix+"-addimg");
+  if(addInput){
+    addInput.onchange=function(){
+      if(addInput.files&&addInput.files.length){galleryAddFiles(addInput.files,prefix);}
+    };
+  }
+  // Bind delete buttons
+  document.querySelectorAll("[data-imgdel]").forEach(function(btn){
+    var key=btn.dataset.imgdel;
+    if(key.indexOf(prefix+"-")!==0)return;
+    btn.onclick=function(e){
+      e.stopPropagation();
+      var idx=parseInt(key.split("-").pop(),10);
+      galleryDelete(prefix,idx);
+    };
+  });
+}
+
 function bindEvents(){
   var addBtn=document.getElementById("btnAdd");
-  if(addBtn)addBtn.onclick=function(){showNewModal=true;render();};
+  if(addBtn)addBtn.onclick=function(){showNewModal=true;newImages=[];render();};
 
   // Search without re-render
   var searchEl=document.getElementById("searchInput");
@@ -448,23 +515,29 @@ function bindEvents(){
     };
   }
 
-  // Toggle expand rows
+  // Toggle expand rows — populate editImages from product data
   document.querySelectorAll(".product-row[data-toggle]").forEach(function(row){
     row.onclick=function(){
       var id=row.dataset.toggle;
-      if(expandedId===id){expandedId=null;}else{expandedId=id;}
+      if(expandedId===id){expandedId=null;editImages=[];}
+      else{
+        expandedId=id;
+        var prod=products.find(function(p){return p.id===id;});
+        if(prod){
+          editImages=(prod.images&&prod.images.length)?prod.images.slice():(prod.image_url?[prod.image_url]:[]);
+        }else{editImages=[];}
+      }
       render();
     };
   });
 
   // Expand row buttons
   document.querySelectorAll("[data-save]").forEach(function(el){el.onclick=function(e){e.stopPropagation();saveProduct(false);};});
-  document.querySelectorAll("[data-cancel]").forEach(function(el){el.onclick=function(e){e.stopPropagation();expandedId=null;render();};});
+  document.querySelectorAll("[data-cancel]").forEach(function(el){el.onclick=function(e){e.stopPropagation();expandedId=null;editImages=[];render();};});
   document.querySelectorAll("[data-del]").forEach(function(el){el.onclick=function(e){e.stopPropagation();deleteProduct(el.dataset.del);};});
 
-  // Edit file upload
-  var editFile=document.getElementById("edit-fileInput");
-  if(editFile)editFile.onchange=function(){handleUpload(editFile,"edit-imgpreview","edit-imgurl","edit-uploadStatus");};
+  // Bind image gallery events for edit form
+  bindGalleryEvents("edit");
 
   // Order status
   document.querySelectorAll("[data-otoggle]").forEach(function(row){
@@ -480,12 +553,12 @@ function bindEvents(){
   // New product modal
   var overlay=document.getElementById("modalOverlay");
   if(overlay){
-    overlay.onclick=function(e){if(e.target===overlay){showNewModal=false;render();}};
-    document.getElementById("modalClose").onclick=function(){showNewModal=false;render();};
-    document.getElementById("modalCancel").onclick=function(){showNewModal=false;render();};
+    overlay.onclick=function(e){if(e.target===overlay){showNewModal=false;newImages=[];render();}};
+    document.getElementById("modalClose").onclick=function(){showNewModal=false;newImages=[];render();};
+    document.getElementById("modalCancel").onclick=function(){showNewModal=false;newImages=[];render();};
     document.getElementById("modalSave").onclick=function(){saveProduct(true);};
-    var newFile=document.getElementById("new-fileInput");
-    if(newFile)newFile.onchange=function(){handleUpload(newFile,"new-imgpreview","new-imgurl","new-uploadStatus");};
+    // Bind image gallery events for new product modal
+    bindGalleryEvents("new");
   }
 }
 

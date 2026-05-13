@@ -21,6 +21,7 @@ interface Product {
   dimensions?: string
   materials?: string
   image_url?: string
+  images?: string[]
   stripe_price_id?: string
   slug?: string
   badge?: string
@@ -402,6 +403,13 @@ serve(async (req) => {
       // (admin form has a field but it should be auto-generated)
       delete body.stripe_price_id
       
+      // Sync image_url with images array
+      if (body.images && body.images.length > 0) {
+        body.image_url = body.images[0]
+      } else if (body.image_url && (!body.images || body.images.length === 0)) {
+        body.images = [body.image_url]
+      }
+      
       const product: Product = {
         ...body,
         slug: slugify(body.name),
@@ -454,6 +462,13 @@ serve(async (req) => {
       // Remove any manually entered stripe_price_id from the request
       const manualStripeId = body.stripe_price_id
       delete body.stripe_price_id
+
+      // Sync image_url with images array
+      if (body.images && body.images.length > 0) {
+        body.image_url = body.images[0]
+      } else if (body.image_url && (!body.images || body.images.length === 0)) {
+        body.images = [body.image_url]
+      }
 
       // Fetch existing product to check if price changed
       const { data: existingProduct } = await supabase
