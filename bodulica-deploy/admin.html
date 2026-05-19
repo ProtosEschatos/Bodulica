@@ -394,8 +394,9 @@ function renderProds(showActive){
     var isOpen=expandedId===p.id;
     rows+='<tr class="product-row" data-toggle="'+p.id+'"><td>'+img+'<div><strong>'+esc(p.name)+'</strong><br><span style="font-size:11px;color:var(--text2)">'+esc(p.slug)+'</span></div></td><td>'+esc(p.brand||"\u2014")+'</td><td>'+catLabel(p.category)+'</td><td><strong>'+parseFloat(p.price).toFixed(2)+' \u20ac</strong></td><td>'+(p.stock_quantity||0)+'</td><td>'+badges+'</td><td style="text-align:right;font-size:16px">'+(isOpen?"\u25b2":"\u25bc")+'</td></tr>';
     rows+='<tr class="expand-row '+(isOpen?"open":"")+'" id="expand-'+p.id+'"><td colspan="7"><div class="expand-content">';
+    if(isOpen){
     rows+='<label style="margin-bottom:8px">Slike proizvoda</label>';
-    rows+=renderImageGallery(imgs,"edit");
+    rows+=renderImageGallery(editImages,"edit");
     rows+='<div class="form-grid"><div><label>Naziv</label><input id="edit-name" value="'+esc(p.name)+'"></div><div><label>Brand</label><input id="edit-brand" value="'+esc(p.brand||"")+'"></div></div>';
     rows+='<div class="form-grid"><div><label>Kategorija</label><select id="edit-category">'+catOpts(p.category)+'</select></div><div><label>Cijena (EUR)</label><input id="edit-price" type="number" step="0.01" value="'+p.price+'"></div></div>';
     rows+='<div class="form-grid"><div><label>Tip</label><select id="edit-unique"><option value="false" '+(p.is_unique!==true?"selected":"")+'>Na zalihi</option><option value="true" '+(p.is_unique===true?"selected":"")+'>Unikat (1 komad)</option></select></div><div><label>Zaliha</label><input id="edit-stock" type="number" min="0" value="'+(p.stock_quantity||0)+'"'+(p.is_unique?" disabled":"")+'></div></div>';
@@ -403,6 +404,7 @@ function renderProds(showActive){
     rows+='<div class="form-grid full"><div><label>Opis</label><textarea id="edit-desc">'+esc(p.description||"")+'</textarea></div></div>';
     rows+='<div class="form-grid"><div><label>Materijali</label><input id="edit-mats" value="'+esc(p.materials||"")+'"></div><div><label>Stripe Price ID</label><input id="edit-stripe" value="'+esc(p.stripe_price_id||"")+'" placeholder="Automatski" readonly style="opacity:0.6;cursor:not-allowed"></div></div>';
     rows+='<div class="form-actions"><button class="btn btn-danger btn-sm" data-del="'+p.id+'">\ud83d\uddd1\ufe0f Obri\u0161i</button><div style="flex:1"></div><button class="btn btn-secondary" data-cancel>Odustani</button><button class="btn btn-primary" data-save>\ud83d\udcbe Spremi</button></div>';
+    }
     rows+='</div></td></tr>';
   });
   var modal="";
